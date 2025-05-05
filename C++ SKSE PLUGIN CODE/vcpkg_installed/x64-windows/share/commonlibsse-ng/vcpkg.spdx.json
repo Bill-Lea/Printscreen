@@ -1,0 +1,110 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.2",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/commonlibsse-ng-x64-windows-3.7.0-4ca51385-912c-4e41-bb57-cb3356e41a63",
+  "name": "commonlibsse-ng:x64-windows@3.7.0 33a0d8713a7d945356b2474533b744d985a45791e5edffbf5d9364de66f1f6aa",
+  "creationInfo": {
+    "creators": [
+      "Tool: vcpkg-2025-01-24-874e302b1fa28cc81caefbb1483f80103c51ab52"
+    ],
+    "created": "2025-05-02T21:38:25Z"
+  },
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "GENERATES",
+      "relatedSpdxElement": "SPDXRef-binary"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-0"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-1"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "GENERATED_FROM",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-0",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-1",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    }
+  ],
+  "packages": [
+    {
+      "name": "commonlibsse-ng",
+      "SPDXID": "SPDXRef-port",
+      "versionInfo": "3.7.0",
+      "downloadLocation": "git+https://gitlab.com/colorglass/vcpkg-colorglass@c5a8904f86744b3b15f97fea64bce897eb3d9c2e",
+      "homepage": "https://github.com/CharmedBaryon/CommonLibSSE",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "description": "A reverse engineered resource for developing SKSE plugins, supporting portable plugins that work across AE, SE, and VR.",
+      "comment": "This is the port (recipe) consumed by vcpkg."
+    },
+    {
+      "name": "commonlibsse-ng:x64-windows",
+      "SPDXID": "SPDXRef-binary",
+      "versionInfo": "33a0d8713a7d945356b2474533b744d985a45791e5edffbf5d9364de66f1f6aa",
+      "downloadLocation": "NONE",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "comment": "This is a binary package built by vcpkg."
+    },
+    {
+      "SPDXID": "SPDXRef-resource-0",
+      "name": "CharmedBaryon/CommonLibSSE",
+      "downloadLocation": "git+https://github.com/CharmedBaryon/CommonLibSSE@c4ab853d095e81e3390b282d7ba01ab2f24ebf25",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "fd615c16f8f2c637cad5ed9d139c776d21314664f4084a62231645114d03ee74e720c1ecf09b4e5daa5d56d418374ad6d587806788d95af8ac08ce3de930015b"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/c5a8904f86744b3b15f97fea64bce897eb3d9c2e/portfile.cmake",
+      "SPDXID": "SPDXRef-file-0",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "f84588d25f4e9c3fb347ee4470d914cf3618b377b285d020fe7c8c21485b1b9b"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/c5a8904f86744b3b15f97fea64bce897eb3d9c2e/vcpkg.json",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "9012ec34aa8e924864925b24c8c59c894f6dbeb32d0b6fde5b803c06b304336c"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ]
+}

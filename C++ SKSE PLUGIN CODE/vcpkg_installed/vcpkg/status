@@ -1,0 +1,105 @@
+Package: vcpkg-cmake-config
+Version: 2024-05-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 6f9f931650872298a7c51b891344101fff30a806fa6db14f70db26857574be09
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2024-04-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: fa1e92207f0f989e9cd2cddda3149e35041d810da794819e541c23283cf75dc0
+Status: install ok installed
+
+Package: xbyak
+Version: 7.24.2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: d870525c09e487cdb453ca2e98088bda18c5afb4d1ed6c68af09ab48ccc3beb7
+Description: Xbyak is a JIT assembler for x86(IA-32)/x64(AMD64, x86-64).
+Status: install ok installed
+
+Package: fmt
+Version: 11.0.2
+Port-Version: 1
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: a97aef268a33f79770bbf02ab774588936a1d60a01ea5845f5f42c828773eaf5
+Description: {fmt} is an open-source formatting library providing a fast and safe alternative to C stdio and C++ iostreams.
+Status: install ok installed
+
+Package: spdlog
+Version: 1.15.2
+Depends: fmt, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 28f4daf61242335701b94064a3a2dd4bacc57cd00522fb6b4f5487049ad24fca
+Description: Very fast, header-only/compiled, C++ logging library.
+Status: install ok installed
+
+Package: rapidcsv
+Version: 8.85
+Depends: vcpkg-cmake
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 3d69f831298a0aeb61a97beb7b565da02d0aa9bbb58c6d41418fb6b4daf4bdf8
+Description: Rapidcsv is a C++ header-only library for CSV parsing.
+Status: install ok installed
+
+Package: commonlibsse-ng
+Version: 3.7.0
+Depends: fmt, rapidcsv, spdlog, vcpkg-cmake-config, xbyak
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 33a0d8713a7d945356b2474533b744d985a45791e5edffbf5d9364de66f1f6aa
+Description: A reverse engineered resource for developing SKSE plugins, supporting portable plugins that work across AE, SE, and VR.
+Status: install ok installed
+
+Package: directxmath
+Version: 2025-04-03
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: bc938dde840be4b7710c3dfaf1f085062457a22ebcf558d215876afa9b66541d
+Description: DirectXMath SIMD C++ math library
+Status: install ok installed
+
+Package: directx-headers
+Version: 1.606.4
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: bba9fa8adf67d4c6965520f3a44675bf8ff6f984099ece29f6a6e8d21c09121c
+Description: Official DirectX 12 Headers
+Status: purge ok not-installed
+
+Package: directxtex
+Version: 2025-03-24
+Depends: directxmath, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 66b058a552db6e33d16d6029d6a4660a73d4a134f6092cfc5bc0c6a1c5c1ec6f
+Description: DirectXTex texture processing library
+Default-Features: dx11
+Status: install ok installed
+
+Package: directxtk
+Version: 2025-03-20
+Port-Version: 1
+Depends: directxmath, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 62e306cdc60a5258ad209772eac348e9703f316d48be72e224e57e4012bbceac
+Description: A collection of helper classes for writing DirectX 11.x code in C++.
+Status: install ok installed
+
+Package: directxtex
+Feature: dx11
+Architecture: x64-windows
+Multi-Arch: same
+Description: Build with DirectX11 support
+Status: install ok installed
+

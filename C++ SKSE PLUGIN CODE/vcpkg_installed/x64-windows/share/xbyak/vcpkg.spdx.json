@@ -1,0 +1,110 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.2",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/xbyak-x64-windows-7.24.2-5267aa9a-3dd6-452e-a64b-44253f2a3056",
+  "name": "xbyak:x64-windows@7.24.2 d870525c09e487cdb453ca2e98088bda18c5afb4d1ed6c68af09ab48ccc3beb7",
+  "creationInfo": {
+    "creators": [
+      "Tool: vcpkg-2025-01-24-874e302b1fa28cc81caefbb1483f80103c51ab52"
+    ],
+    "created": "2025-05-02T21:35:19Z"
+  },
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "GENERATES",
+      "relatedSpdxElement": "SPDXRef-binary"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-0"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-1"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "GENERATED_FROM",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-0",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-1",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    }
+  ],
+  "packages": [
+    {
+      "name": "xbyak",
+      "SPDXID": "SPDXRef-port",
+      "versionInfo": "7.24.2",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@75cb79f6e009287f83abbecf0ac9f71bd9a0010c",
+      "homepage": "https://github.com/herumi/xbyak",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "description": "Xbyak is a JIT assembler for x86(IA-32)/x64(AMD64, x86-64).",
+      "comment": "This is the port (recipe) consumed by vcpkg."
+    },
+    {
+      "name": "xbyak:x64-windows",
+      "SPDXID": "SPDXRef-binary",
+      "versionInfo": "d870525c09e487cdb453ca2e98088bda18c5afb4d1ed6c68af09ab48ccc3beb7",
+      "downloadLocation": "NONE",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "comment": "This is a binary package built by vcpkg."
+    },
+    {
+      "SPDXID": "SPDXRef-resource-0",
+      "name": "herumi/xbyak",
+      "downloadLocation": "git+https://github.com/herumi/xbyak@v${VERSION_STR}",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "d8bcf248b4506f09ee70431f6c38d0d2eb7c3dfa110cbe700e7ae689e0a640f77ec337aeafda93d0f4fd7e9139a8e46dbf1cb99dd4a576667d71b05992a618b8"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/75cb79f6e009287f83abbecf0ac9f71bd9a0010c/portfile.cmake",
+      "SPDXID": "SPDXRef-file-0",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "30a7fb0fd263b4218876c365866049e11211aaa7928b5fa3c6580e182133da31"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/75cb79f6e009287f83abbecf0ac9f71bd9a0010c/vcpkg.json",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "5bfd34a493a9dbd1913ec912b2eb5035749459f89bbc5f00a5b4ba54ce66cd0a"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ]
+}

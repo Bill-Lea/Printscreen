@@ -1,0 +1,18 @@
+{
+	"float" : 
+	{
+		"compression" : 35.0
+	},
+	"int" : 
+	{
+		"menu" : 1,
+		"takephoto" : 14,
+		"usejsonfile" : 1
+	},
+	"string" : 
+	{
+		"dds_compression" : "BC7_FAST",
+		"imagetype" : "png",
+		"path" : "C:/Pictures/test/Vanilla/Ice"
+	}
+}

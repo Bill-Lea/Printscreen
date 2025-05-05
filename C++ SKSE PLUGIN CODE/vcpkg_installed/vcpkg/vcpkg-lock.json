@@ -1,0 +1,8 @@
+{
+  "https://github.com/microsoft/vcpkg.git": {
+    "HEAD": "e0b65b8ccab766d7570a6734b9b2e6388a27bf41"
+  },
+  "https://gitlab.com/colorglass/vcpkg-colorglass": {
+    "HEAD": "6309841a1ce770409708a67a9ba5c26c537d2937"
+  }
+}
