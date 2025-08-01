@@ -10,22 +10,10 @@
 
 #pragma once
 
-#if !defined(USING_XINPUT) && !defined(USING_GAMEINPUT) && !defined(USING_COREWINDOW)
-
-#ifdef _GAMING_DESKTOP
-#include <grdk.h>
-#endif
-
-#if (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_GAMES)) || (defined(_GAMING_DESKTOP) && (_GRDK_EDITION >= 220600))
-#define USING_GAMEINPUT
-#elif (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)) || (defined(_XBOX_ONE) && defined(_TITLE))
+#if (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)) || (defined(_XBOX_ONE) && defined(_TITLE))
+#ifndef USING_COREWINDOW
 #define USING_COREWINDOW
 #endif
-
-#endif // !USING_XINPUT && !USING_GAMEINPUT && !USING_WINDOWS_GAMING_INPUT
-
-#if defined(USING_GAMEINPUT) && !defined(_GAMING_XBOX) && defined(_MSC_VER)
-#pragma comment(lib,"gameinput.lib")
 #endif
 
 #include <cstdint>
@@ -33,16 +21,6 @@
 
 #ifdef USING_COREWINDOW
 namespace ABI { namespace Windows { namespace UI { namespace Core { struct ICoreWindow; } } } }
-#endif
-
-#ifndef DIRECTX_TOOLKIT_API
-#ifdef DIRECTX_TOOLKIT_EXPORT
-#define DIRECTX_TOOLKIT_API __declspec(dllexport)
-#elif defined(DIRECTX_TOOLKIT_IMPORT)
-#define DIRECTX_TOOLKIT_API __declspec(dllimport)
-#else
-#define DIRECTX_TOOLKIT_API
-#endif
 #endif
 
 #ifdef __clang__
@@ -56,15 +34,15 @@ namespace DirectX
     class Keyboard
     {
     public:
-        DIRECTX_TOOLKIT_API Keyboard() noexcept(false);
+        Keyboard() noexcept(false);
 
-        DIRECTX_TOOLKIT_API Keyboard(Keyboard&&) noexcept;
-        DIRECTX_TOOLKIT_API Keyboard& operator= (Keyboard&&) noexcept;
+        Keyboard(Keyboard&&) noexcept;
+        Keyboard& operator= (Keyboard&&) noexcept;
 
         Keyboard(Keyboard const&) = delete;
         Keyboard& operator=(Keyboard const&) = delete;
 
-        DIRECTX_TOOLKIT_API virtual ~Keyboard();
+        virtual ~Keyboard();
 
         enum Keys : unsigned char
         {
@@ -248,7 +226,7 @@ namespace DirectX
             OemClear = 0xfe,
         };
 
-        struct DIRECTX_TOOLKIT_API State
+        struct State
         {
             bool Reserved0 : 8;
             bool Back : 1;              // VK_BACK, 0x8
@@ -436,12 +414,6 @@ namespace DirectX
             bool OemClear : 1;          // VK_OEM_CLEAR, 0xFE
             bool Reserved26 : 1;
 
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunknown-warning-option"
-#pragma clang diagnostic ignored "-Wunsafe-buffer-usage"
-#endif
-
             bool __cdecl IsKeyDown(Keys key) const noexcept
             {
                 if (key <= 0xfe)
@@ -463,26 +435,16 @@ namespace DirectX
                 }
                 return false;
             }
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
         };
 
-        class DIRECTX_TOOLKIT_API KeyboardStateTracker
+        class KeyboardStateTracker
         {
         public:
             State released;
             State pressed;
 
-        #ifdef _PREFAST_
-        #pragma prefast(push)
-        #pragma prefast(disable : 26495, "Reset() performs the initialization")
-        #endif
+        #pragma prefast(suppress: 26495, "Reset() performs the initialization")
             KeyboardStateTracker() noexcept { Reset(); }
-        #ifdef _PREFAST_
-        #pragma prefast(pop)
-        #endif
 
             void __cdecl Update(const State& state) noexcept;
 
@@ -498,36 +460,36 @@ namespace DirectX
         };
 
         // Retrieve the current state of the keyboard
-        DIRECTX_TOOLKIT_API State __cdecl GetState() const;
+        State __cdecl GetState() const;
 
         // Reset the keyboard state
-        DIRECTX_TOOLKIT_API void __cdecl Reset() noexcept;
+        void __cdecl Reset() noexcept;
 
         // Feature detection
-        DIRECTX_TOOLKIT_API bool __cdecl IsConnected() const;
+        bool __cdecl IsConnected() const;
 
     #ifdef USING_COREWINDOW
-        DIRECTX_TOOLKIT_API void __cdecl SetWindow(ABI::Windows::UI::Core::ICoreWindow* window);
+        void __cdecl SetWindow(ABI::Windows::UI::Core::ICoreWindow* window);
     #ifdef __cplusplus_winrt
-        DIRECTX_TOOLKIT_API inline void __cdecl SetWindow(Windows::UI::Core::CoreWindow^ window)
+        void __cdecl SetWindow(Windows::UI::Core::CoreWindow^ window)
         {
             // See https://msdn.microsoft.com/en-us/library/hh755802.aspx
             SetWindow(reinterpret_cast<ABI::Windows::UI::Core::ICoreWindow*>(window));
         }
     #endif
     #ifdef CPPWINRT_VERSION
-        DIRECTX_TOOLKIT_API inline void __cdecl SetWindow(winrt::Windows::UI::Core::CoreWindow window)
+        void __cdecl SetWindow(winrt::Windows::UI::Core::CoreWindow window)
         {
             // See https://docs.microsoft.com/en-us/windows/uwp/cpp-and-winrt-apis/interop-winrt-abi
             SetWindow(reinterpret_cast<ABI::Windows::UI::Core::ICoreWindow*>(winrt::get_abi(window)));
         }
     #endif
     #elif defined(WM_USER)
-        DIRECTX_TOOLKIT_API static void __cdecl ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
+        static void __cdecl ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
     #endif
 
         // Singleton
-        DIRECTX_TOOLKIT_API static Keyboard& __cdecl Get();
+        static Keyboard& __cdecl Get();
 
     private:
         // Private implementation.

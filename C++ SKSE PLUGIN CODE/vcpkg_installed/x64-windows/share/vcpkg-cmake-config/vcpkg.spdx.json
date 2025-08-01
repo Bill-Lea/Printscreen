@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/vcpkg-cmake-config-x64-windows-2024-05-23-c7b3be64-696a-44a4-ac24-396435e805b3",
-  "name": "vcpkg-cmake-config:x64-windows@2024-05-23 6f9f931650872298a7c51b891344101fff30a806fa6db14f70db26857574be09",
+  "documentNamespace": "https://spdx.org/spdxdocs/vcpkg-cmake-config-x64-windows-2022-02-06#1-b542b9cd-1e4f-4f04-b97e-edd56d53ae3f",
+  "name": "vcpkg-cmake-config:x64-windows@2022-02-06#1 fba7aab40091f2381a802557413531af485576a183d24d6766f35422061e10ce",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-01-24-874e302b1fa28cc81caefbb1483f80103c51ab52"
+      "Tool: vcpkg-2025-04-01-9c604254140797833b6f76908435c9fcbf09920e"
     ],
-    "created": "2025-05-02T20:11:48Z"
+    "created": "2025-06-18T18:46:17Z"
   },
   "relationships": [
     {
@@ -68,6 +68,11 @@
       "relatedSpdxElement": "SPDXRef-port"
     },
     {
+      "spdxElementId": "SPDXRef-file-3",
+      "relationshipType": "DEPENDENCY_MANIFEST_OF",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
       "spdxElementId": "SPDXRef-file-4",
       "relationshipType": "CONTAINED_BY",
       "relatedSpdxElement": "SPDXRef-port"
@@ -77,8 +82,8 @@
     {
       "name": "vcpkg-cmake-config",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "2024-05-23",
-      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@97a63e4bc1a17422ffe4eff71da53b4b561a7841",
+      "versionInfo": "2022-02-06#1",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@8d54cc4f487d51b655abec5f9c9c3f86ca83311f",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
@@ -87,7 +92,7 @@
     {
       "name": "vcpkg-cmake-config:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "6f9f931650872298a7c51b891344101fff30a806fa6db14f70db26857574be09",
+      "versionInfo": "fba7aab40091f2381a802557413531af485576a183d24d6766f35422061e10ce",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -97,7 +102,7 @@
   ],
   "files": [
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/97a63e4bc1a17422ffe4eff71da53b4b561a7841/copyright",
+      "fileName": "./copyright",
       "SPDXID": "SPDXRef-file-0",
       "checksums": [
         {
@@ -109,7 +114,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/97a63e4bc1a17422ffe4eff71da53b4b561a7841/portfile.cmake",
+      "fileName": "./portfile.cmake",
       "SPDXID": "SPDXRef-file-1",
       "checksums": [
         {
@@ -121,7 +126,7 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/97a63e4bc1a17422ffe4eff71da53b4b561a7841/vcpkg-port-config.cmake",
+      "fileName": "./vcpkg-port-config.cmake",
       "SPDXID": "SPDXRef-file-2",
       "checksums": [
         {
@@ -133,24 +138,24 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/97a63e4bc1a17422ffe4eff71da53b4b561a7841/vcpkg.json",
+      "fileName": "./vcpkg.json",
       "SPDXID": "SPDXRef-file-3",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "3964c3d0e6b39c7f42cebd5949cccdc7eb6feb83ee434fe73756c954b173c5c2"
+          "checksumValue": "4ffbabc2feab69abd21267f57669ef5e404bcbfa5ab6d93234374d98f5ff1864"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/97a63e4bc1a17422ffe4eff71da53b4b561a7841/vcpkg_cmake_config_fixup.cmake",
+      "fileName": "./vcpkg_cmake_config_fixup.cmake",
       "SPDXID": "SPDXRef-file-4",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "f3880578674f1bdbc54b67c5fc3787aaab8ee8bcf4e3e6e008204bf4ab67aa0b"
+          "checksumValue": "f92905382d90e37fa2addd96becce31f5075175196b117de6dd997a4ac1d6d06"
         }
       ],
       "licenseConcluded": "NOASSERTION",

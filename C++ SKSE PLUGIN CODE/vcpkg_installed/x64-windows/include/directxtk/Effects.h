@@ -9,9 +9,6 @@
 
 #pragma once
 
-#ifndef __DIRECTXTK_EFFECTS_H__
-#define __DIRECTXTK_EFFECTS_H__
-
 #if defined(_XBOX_ONE) && defined(_TITLE)
 #include <d3d11_x.h>
 #else
@@ -19,25 +16,9 @@
 #endif
 
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 
 #include <DirectXMath.h>
-
-#ifndef DIRECTX_TOOLKIT_API
-#ifdef DIRECTX_TOOLKIT_EXPORT
-#define DIRECTX_TOOLKIT_API __declspec(dllexport)
-#elif defined(DIRECTX_TOOLKIT_IMPORT)
-#define DIRECTX_TOOLKIT_API __declspec(dllimport)
-#else
-#define DIRECTX_TOOLKIT_API
-#endif
-#endif
-
-#if defined(DIRECTX_TOOLKIT_IMPORT) && defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
 
 
 namespace DirectX
@@ -46,7 +27,7 @@ namespace DirectX
     {
         //------------------------------------------------------------------------------
         // Abstract interface representing any effect which can be applied onto a D3D device context.
-        class DIRECTX_TOOLKIT_API IEffect
+        class IEffect
         {
         public:
             virtual ~IEffect() = default;
@@ -56,9 +37,7 @@ namespace DirectX
 
             virtual void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) = 0;
 
-            virtual void __cdecl GetVertexShaderBytecode(
-                _Out_ void const** pShaderByteCode,
-                _Out_ size_t* pByteCodeLength) = 0;
+            virtual void __cdecl GetVertexShaderBytecode(_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength) = 0;
 
         protected:
             IEffect() = default;
@@ -68,7 +47,7 @@ namespace DirectX
 
 
         // Abstract interface for effects with world, view, and projection matrices.
-        class DIRECTX_TOOLKIT_API IEffectMatrices
+        class IEffectMatrices
         {
         public:
             virtual ~IEffectMatrices() = default;
@@ -89,7 +68,7 @@ namespace DirectX
 
 
         // Abstract interface for effects which support directional lighting.
-        class DIRECTX_TOOLKIT_API IEffectLights
+        class IEffectLights
         {
         public:
             virtual ~IEffectLights() = default;
@@ -118,7 +97,7 @@ namespace DirectX
 
 
         // Abstract interface for effects which support fog.
-        class DIRECTX_TOOLKIT_API IEffectFog
+        class IEffectFog
         {
         public:
             virtual ~IEffectFog() = default;
@@ -139,7 +118,7 @@ namespace DirectX
 
 
         // Abstract interface for effects which support skinning
-        class DIRECTX_TOOLKIT_API IEffectSkinning
+        class IEffectSkinning
         {
         public:
             virtual ~IEffectSkinning() = default;
@@ -164,65 +143,63 @@ namespace DirectX
         class BasicEffect : public IEffect, public IEffectMatrices, public IEffectLights, public IEffectFog
         {
         public:
-            DIRECTX_TOOLKIT_API explicit BasicEffect(_In_ ID3D11Device* device);
+            explicit BasicEffect(_In_ ID3D11Device* device);
 
-            DIRECTX_TOOLKIT_API BasicEffect(BasicEffect&&) noexcept;
-            DIRECTX_TOOLKIT_API BasicEffect& operator= (BasicEffect&&) noexcept;
+            BasicEffect(BasicEffect&&) noexcept;
+            BasicEffect& operator= (BasicEffect&&) noexcept;
 
             BasicEffect(BasicEffect const&) = delete;
             BasicEffect& operator= (BasicEffect const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~BasicEffect() override;
+            ~BasicEffect() override;
 
             // IEffect methods.
-            DIRECTX_TOOLKIT_API void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl GetVertexShaderBytecode(
-                _Out_ void const** pShaderByteCode,
-                _Out_ size_t* pByteCodeLength) override;
+            void __cdecl GetVertexShaderBytecode(_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength) override;
 
             // Camera settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetWorld(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetView(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetProjection(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
+            void XM_CALLCONV SetWorld(FXMMATRIX value) override;
+            void XM_CALLCONV SetView(FXMMATRIX value) override;
+            void XM_CALLCONV SetProjection(FXMMATRIX value) override;
+            void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
 
             // Material settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetEmissiveColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetSpecularColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void __cdecl SetSpecularPower(float value);
-            DIRECTX_TOOLKIT_API void __cdecl DisableSpecular();
-            DIRECTX_TOOLKIT_API void __cdecl SetAlpha(float value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
+            void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
+            void XM_CALLCONV SetEmissiveColor(FXMVECTOR value);
+            void XM_CALLCONV SetSpecularColor(FXMVECTOR value);
+            void __cdecl SetSpecularPower(float value);
+            void __cdecl DisableSpecular();
+            void __cdecl SetAlpha(float value);
+            void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
 
             // Light settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetLightingEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetPerPixelLighting(bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
+            void __cdecl SetLightingEnabled(bool value) override;
+            void __cdecl SetPerPixelLighting(bool value) override;
+            void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl SetLightEnabled(int whichLight, bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
+            void __cdecl SetLightEnabled(int whichLight, bool value) override;
+            void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
+            void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
+            void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl EnableDefaultLighting() override;
+            void __cdecl EnableDefaultLighting() override;
 
             // Fog settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogStart(float value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnd(float value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
+            void __cdecl SetFogEnabled(bool value) override;
+            void __cdecl SetFogStart(float value) override;
+            void __cdecl SetFogEnd(float value) override;
+            void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
 
             // Vertex color setting.
-            DIRECTX_TOOLKIT_API void __cdecl SetVertexColorEnabled(bool value);
+            void __cdecl SetVertexColorEnabled(bool value);
 
             // Texture setting.
-            DIRECTX_TOOLKIT_API void __cdecl SetTextureEnabled(bool value);
-            DIRECTX_TOOLKIT_API void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetTextureEnabled(bool value);
+            void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
 
             // Normal compression settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetBiasedVertexNormals(bool value);
+            void __cdecl SetBiasedVertexNormals(bool value);
 
         private:
             // Private implementation.
@@ -237,49 +214,47 @@ namespace DirectX
         class AlphaTestEffect : public IEffect, public IEffectMatrices, public IEffectFog
         {
         public:
-            DIRECTX_TOOLKIT_API explicit AlphaTestEffect(_In_ ID3D11Device* device);
+            explicit AlphaTestEffect(_In_ ID3D11Device* device);
 
-            DIRECTX_TOOLKIT_API AlphaTestEffect(AlphaTestEffect&&) noexcept;
-            DIRECTX_TOOLKIT_API AlphaTestEffect& operator= (AlphaTestEffect&&) noexcept;
+            AlphaTestEffect(AlphaTestEffect&&) noexcept;
+            AlphaTestEffect& operator= (AlphaTestEffect&&) noexcept;
 
             AlphaTestEffect(AlphaTestEffect const&) = delete;
             AlphaTestEffect& operator= (AlphaTestEffect const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~AlphaTestEffect() override;
+            ~AlphaTestEffect() override;
 
             // IEffect methods.
-            DIRECTX_TOOLKIT_API void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl GetVertexShaderBytecode(
-                _Out_ void const** pShaderByteCode,
-                _Out_ size_t* pByteCodeLength) override;
+            void __cdecl GetVertexShaderBytecode(_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength) override;
 
             // Camera settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetWorld(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetView(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetProjection(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
+            void XM_CALLCONV SetWorld(FXMMATRIX value) override;
+            void XM_CALLCONV SetView(FXMMATRIX value) override;
+            void XM_CALLCONV SetProjection(FXMMATRIX value) override;
+            void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
 
             // Material settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void __cdecl SetAlpha(float value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
+            void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
+            void __cdecl SetAlpha(float value);
+            void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
 
             // Fog settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogStart(float value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnd(float value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
+            void __cdecl SetFogEnabled(bool value) override;
+            void __cdecl SetFogStart(float value) override;
+            void __cdecl SetFogEnd(float value) override;
+            void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
 
             // Vertex color setting.
-            DIRECTX_TOOLKIT_API void __cdecl SetVertexColorEnabled(bool value);
+            void __cdecl SetVertexColorEnabled(bool value);
 
             // Texture setting.
-            DIRECTX_TOOLKIT_API void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
 
             // Alpha test settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetAlphaFunction(D3D11_COMPARISON_FUNC value);
-            DIRECTX_TOOLKIT_API void __cdecl SetReferenceAlpha(int value);
+            void __cdecl SetAlphaFunction(D3D11_COMPARISON_FUNC value);
+            void __cdecl SetReferenceAlpha(int value);
 
         private:
             // Private implementation.
@@ -294,46 +269,44 @@ namespace DirectX
         class DualTextureEffect : public IEffect, public IEffectMatrices, public IEffectFog
         {
         public:
-            DIRECTX_TOOLKIT_API explicit DualTextureEffect(_In_ ID3D11Device* device);
+            explicit DualTextureEffect(_In_ ID3D11Device* device);
 
-            DIRECTX_TOOLKIT_API DualTextureEffect(DualTextureEffect&&) noexcept;
-            DIRECTX_TOOLKIT_API DualTextureEffect& operator= (DualTextureEffect&&) noexcept;
+            DualTextureEffect(DualTextureEffect&&) noexcept;
+            DualTextureEffect& operator= (DualTextureEffect&&) noexcept;
 
             DualTextureEffect(DualTextureEffect const&) = delete;
             DualTextureEffect& operator= (DualTextureEffect const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~DualTextureEffect() override;
+            ~DualTextureEffect() override;
 
             // IEffect methods.
-            DIRECTX_TOOLKIT_API void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl GetVertexShaderBytecode(
-                _Out_ void const** pShaderByteCode,
-                _Out_ size_t* pByteCodeLength) override;
+            void __cdecl GetVertexShaderBytecode(_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength) override;
 
             // Camera settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetWorld(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetView(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetProjection(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
+            void XM_CALLCONV SetWorld(FXMMATRIX value) override;
+            void XM_CALLCONV SetView(FXMMATRIX value) override;
+            void XM_CALLCONV SetProjection(FXMMATRIX value) override;
+            void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
 
             // Material settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void __cdecl SetAlpha(float value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
+            void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
+            void __cdecl SetAlpha(float value);
+            void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
 
             // Fog settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogStart(float value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnd(float value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
+            void __cdecl SetFogEnabled(bool value) override;
+            void __cdecl SetFogStart(float value) override;
+            void __cdecl SetFogEnd(float value) override;
+            void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
 
             // Vertex color setting.
-            DIRECTX_TOOLKIT_API void __cdecl SetVertexColorEnabled(bool value);
+            void __cdecl SetVertexColorEnabled(bool value);
 
             // Texture settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
-            DIRECTX_TOOLKIT_API void __cdecl SetTexture2(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetTexture2(_In_opt_ ID3D11ShaderResourceView* value);
 
         private:
             // Private implementation.
@@ -348,70 +321,68 @@ namespace DirectX
         class EnvironmentMapEffect : public IEffect, public IEffectMatrices, public IEffectLights, public IEffectFog
         {
         public:
-            enum Mapping : uint32_t
+            enum Mapping
             {
                 Mapping_Cube = 0,       // Cubic environment map
                 Mapping_Sphere,         // Spherical environment map
                 Mapping_DualParabola,   // Dual-parabola environment map (requires Feature Level 10.0)
             };
 
-            DIRECTX_TOOLKIT_API explicit EnvironmentMapEffect(_In_ ID3D11Device* device);
+            explicit EnvironmentMapEffect(_In_ ID3D11Device* device);
 
-            DIRECTX_TOOLKIT_API EnvironmentMapEffect(EnvironmentMapEffect&&) noexcept;
-            DIRECTX_TOOLKIT_API EnvironmentMapEffect& operator= (EnvironmentMapEffect&&) noexcept;
+            EnvironmentMapEffect(EnvironmentMapEffect&&) noexcept;
+            EnvironmentMapEffect& operator= (EnvironmentMapEffect&&) noexcept;
 
             EnvironmentMapEffect(EnvironmentMapEffect const&) = delete;
             EnvironmentMapEffect& operator= (EnvironmentMapEffect const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~EnvironmentMapEffect() override;
+            ~EnvironmentMapEffect() override;
 
             // IEffect methods.
-            DIRECTX_TOOLKIT_API void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl GetVertexShaderBytecode(
-                _Out_ void const** pShaderByteCode,
-                _Out_ size_t* pByteCodeLength) override;
+            void __cdecl GetVertexShaderBytecode(_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength) override;
 
             // Camera settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetWorld(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetView(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetProjection(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
+            void XM_CALLCONV SetWorld(FXMMATRIX value) override;
+            void XM_CALLCONV SetView(FXMMATRIX value) override;
+            void XM_CALLCONV SetProjection(FXMMATRIX value) override;
+            void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
 
             // Material settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetEmissiveColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void __cdecl SetAlpha(float value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
+            void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
+            void XM_CALLCONV SetEmissiveColor(FXMVECTOR value);
+            void __cdecl SetAlpha(float value);
+            void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
 
             // Light settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
+            void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl SetPerPixelLighting(bool value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetLightEnabled(int whichLight, bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
+            void __cdecl SetPerPixelLighting(bool value) override;
+            void __cdecl SetLightEnabled(int whichLight, bool value) override;
+            void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
+            void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl EnableDefaultLighting() override;
+            void __cdecl EnableDefaultLighting() override;
 
             // Fog settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogStart(float value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnd(float value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
+            void __cdecl SetFogEnabled(bool value) override;
+            void __cdecl SetFogStart(float value) override;
+            void __cdecl SetFogEnd(float value) override;
+            void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
 
             // Texture setting.
-            DIRECTX_TOOLKIT_API void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
-            DIRECTX_TOOLKIT_API void __cdecl SetEnvironmentMap(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetEnvironmentMap(_In_opt_ ID3D11ShaderResourceView* value);
 
             // Environment map settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetMode(Mapping mapping);
-            DIRECTX_TOOLKIT_API void __cdecl SetEnvironmentMapAmount(float value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetEnvironmentMapSpecular(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void __cdecl SetFresnelFactor(float value);
+            void __cdecl SetMode(Mapping mapping);
+            void __cdecl SetEnvironmentMapAmount(float value);
+            void XM_CALLCONV SetEnvironmentMapSpecular(FXMVECTOR value);
+            void __cdecl SetFresnelFactor(float value);
 
             // Normal compression settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetBiasedVertexNormals(bool value);
+            void __cdecl SetBiasedVertexNormals(bool value);
 
         private:
             // Private implementation.
@@ -420,8 +391,8 @@ namespace DirectX
             std::unique_ptr<Impl> pImpl;
 
             // Unsupported interface methods.
-            DIRECTX_TOOLKIT_API void __cdecl SetLightingEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
+            void __cdecl SetLightingEnabled(bool value) override;
+            void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
         };
 
 
@@ -430,65 +401,63 @@ namespace DirectX
         class SkinnedEffect : public IEffect, public IEffectMatrices, public IEffectLights, public IEffectFog, public IEffectSkinning
         {
         public:
-            DIRECTX_TOOLKIT_API explicit SkinnedEffect(_In_ ID3D11Device* device);
+            explicit SkinnedEffect(_In_ ID3D11Device* device);
 
-            DIRECTX_TOOLKIT_API SkinnedEffect(SkinnedEffect&&) noexcept;
-            DIRECTX_TOOLKIT_API SkinnedEffect& operator= (SkinnedEffect&&) noexcept;
+            SkinnedEffect(SkinnedEffect&&) noexcept;
+            SkinnedEffect& operator= (SkinnedEffect&&) noexcept;
 
             SkinnedEffect(SkinnedEffect const&) = delete;
             SkinnedEffect& operator= (SkinnedEffect const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~SkinnedEffect() override;
+            ~SkinnedEffect() override;
 
             // IEffect methods.
-            DIRECTX_TOOLKIT_API void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl GetVertexShaderBytecode(
-                _Out_ void const** pShaderByteCode,
-                _Out_ size_t* pByteCodeLength) override;
+            void __cdecl GetVertexShaderBytecode(_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength) override;
 
             // Camera settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetWorld(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetView(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetProjection(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
+            void XM_CALLCONV SetWorld(FXMMATRIX value) override;
+            void XM_CALLCONV SetView(FXMMATRIX value) override;
+            void XM_CALLCONV SetProjection(FXMMATRIX value) override;
+            void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
 
             // Material settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetEmissiveColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetSpecularColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void __cdecl SetSpecularPower(float value);
-            DIRECTX_TOOLKIT_API void __cdecl DisableSpecular();
-            DIRECTX_TOOLKIT_API void __cdecl SetAlpha(float value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
+            void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
+            void XM_CALLCONV SetEmissiveColor(FXMVECTOR value);
+            void XM_CALLCONV SetSpecularColor(FXMVECTOR value);
+            void __cdecl SetSpecularPower(float value);
+            void __cdecl DisableSpecular();
+            void __cdecl SetAlpha(float value);
+            void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
 
             // Light settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetPerPixelLighting(bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
+            void __cdecl SetPerPixelLighting(bool value) override;
+            void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl SetLightEnabled(int whichLight, bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
+            void __cdecl SetLightEnabled(int whichLight, bool value) override;
+            void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
+            void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
+            void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl EnableDefaultLighting() override;
+            void __cdecl EnableDefaultLighting() override;
 
             // Fog settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogStart(float value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnd(float value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
+            void __cdecl SetFogEnabled(bool value) override;
+            void __cdecl SetFogStart(float value) override;
+            void __cdecl SetFogEnd(float value) override;
+            void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
 
             // Texture setting.
-            DIRECTX_TOOLKIT_API void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
 
             // Animation settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetWeightsPerVertex(int value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetBoneTransforms(_In_reads_(count) XMMATRIX const* value, size_t count) override;
-            DIRECTX_TOOLKIT_API void __cdecl ResetBoneTransforms() override;
+            void __cdecl SetWeightsPerVertex(int value) override;
+            void __cdecl SetBoneTransforms(_In_reads_(count) XMMATRIX const* value, size_t count) override;
+            void __cdecl ResetBoneTransforms() override;
 
             // Normal compression settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetBiasedVertexNormals(bool value);
+            void __cdecl SetBiasedVertexNormals(bool value);
 
         private:
             // Private implementation.
@@ -497,7 +466,7 @@ namespace DirectX
             std::unique_ptr<Impl> pImpl;
 
             // Unsupported interface method.
-            DIRECTX_TOOLKIT_API void __cdecl SetLightingEnabled(bool value) override;
+            void __cdecl SetLightingEnabled(bool value) override;
         };
 
         //------------------------------------------------------------------------------
@@ -505,68 +474,66 @@ namespace DirectX
         class DGSLEffect : public IEffect, public IEffectMatrices, public IEffectLights
         {
         public:
-            DIRECTX_TOOLKIT_API inline explicit DGSLEffect(_In_ ID3D11Device* device, _In_opt_ ID3D11PixelShader* pixelShader = nullptr) :
+            explicit DGSLEffect(_In_ ID3D11Device* device, _In_opt_ ID3D11PixelShader* pixelShader = nullptr) :
                 DGSLEffect(device, pixelShader, false)
             {
             }
 
-            DIRECTX_TOOLKIT_API DGSLEffect(DGSLEffect&&) noexcept;
-            DIRECTX_TOOLKIT_API DGSLEffect& operator= (DGSLEffect&&) noexcept;
+            DGSLEffect(DGSLEffect&&) noexcept;
+            DGSLEffect& operator= (DGSLEffect&&) noexcept;
 
             DGSLEffect(DGSLEffect const&) = delete;
             DGSLEffect& operator= (DGSLEffect const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~DGSLEffect() override;
+            ~DGSLEffect() override;
 
             // IEffect methods.
-            DIRECTX_TOOLKIT_API void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl GetVertexShaderBytecode(
-                _Out_ void const** pShaderByteCode,
-                _Out_ size_t* pByteCodeLength) override;
+            void __cdecl GetVertexShaderBytecode(_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength) override;
 
             // Camera settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetWorld(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetView(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetProjection(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
+            void XM_CALLCONV SetWorld(FXMMATRIX value) override;
+            void XM_CALLCONV SetView(FXMMATRIX value) override;
+            void XM_CALLCONV SetProjection(FXMMATRIX value) override;
+            void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
 
             // Material settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetAmbientColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetEmissiveColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetSpecularColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void __cdecl SetSpecularPower(float value);
-            DIRECTX_TOOLKIT_API void __cdecl DisableSpecular();
-            DIRECTX_TOOLKIT_API void __cdecl SetAlpha(float value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
+            void XM_CALLCONV SetAmbientColor(FXMVECTOR value);
+            void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
+            void XM_CALLCONV SetEmissiveColor(FXMVECTOR value);
+            void XM_CALLCONV SetSpecularColor(FXMVECTOR value);
+            void __cdecl SetSpecularPower(float value);
+            void __cdecl DisableSpecular();
+            void __cdecl SetAlpha(float value);
+            void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
 
             // Additional settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetUVTransform(FXMMATRIX value);
-            DIRECTX_TOOLKIT_API void __cdecl SetViewport(float width, float height);
-            DIRECTX_TOOLKIT_API void __cdecl SetTime(float time);
-            DIRECTX_TOOLKIT_API void __cdecl SetAlphaDiscardEnable(bool value);
+            void XM_CALLCONV SetUVTransform(FXMMATRIX value);
+            void __cdecl SetViewport(float width, float height);
+            void __cdecl SetTime(float time);
+            void __cdecl SetAlphaDiscardEnable(bool value);
 
             // Light settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetLightingEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
+            void __cdecl SetLightingEnabled(bool value) override;
+            void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl SetLightEnabled(int whichLight, bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
+            void __cdecl SetLightEnabled(int whichLight, bool value) override;
+            void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
+            void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
+            void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl EnableDefaultLighting() override;
+            void __cdecl EnableDefaultLighting() override;
 
             static constexpr int MaxDirectionalLights = 4;
 
             // Vertex color setting.
-            DIRECTX_TOOLKIT_API void __cdecl SetVertexColorEnabled(bool value);
+            void __cdecl SetVertexColorEnabled(bool value);
 
             // Texture settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetTextureEnabled(bool value);
-            DIRECTX_TOOLKIT_API void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
-            DIRECTX_TOOLKIT_API void __cdecl SetTexture(int whichTexture, _In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetTextureEnabled(bool value);
+            void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetTexture(int whichTexture, _In_opt_ ID3D11ShaderResourceView* value);
 
             static constexpr int MaxTextures = 8;
 
@@ -576,13 +543,13 @@ namespace DirectX
 
             std::unique_ptr<Impl> pImpl;
 
-            DIRECTX_TOOLKIT_API DGSLEffect(_In_ ID3D11Device* device, _In_opt_ ID3D11PixelShader* pixelShader, bool skinningEnabled);
+            DGSLEffect(_In_ ID3D11Device* device, _In_opt_ ID3D11PixelShader* pixelShader, bool skinningEnabled);
 
             // Unsupported interface methods.
-            DIRECTX_TOOLKIT_API void __cdecl SetPerPixelLighting(bool value) override;
+            void __cdecl SetPerPixelLighting(bool value) override;
         };
 
-        class DIRECTX_TOOLKIT_API SkinnedDGSLEffect : public DGSLEffect, public IEffectSkinning
+        class SkinnedDGSLEffect : public DGSLEffect, public IEffectSkinning
         {
         public:
             explicit SkinnedDGSLEffect(_In_ ID3D11Device* device, _In_opt_ ID3D11PixelShader* pixelShader = nullptr) :
@@ -596,8 +563,6 @@ namespace DirectX
             SkinnedDGSLEffect(SkinnedDGSLEffect const&) = delete;
             SkinnedDGSLEffect& operator= (SkinnedDGSLEffect const&) = delete;
 
-            ~SkinnedDGSLEffect() override;
-
             // Animation setting.
             void __cdecl SetWeightsPerVertex(int value) override;
             void __cdecl SetBoneTransforms(_In_reads_(count) XMMATRIX const* value, size_t count) override;
@@ -609,70 +574,68 @@ namespace DirectX
         class NormalMapEffect : public IEffect, public IEffectMatrices, public IEffectLights, public IEffectFog
         {
         public:
-            DIRECTX_TOOLKIT_API inline explicit NormalMapEffect(_In_ ID3D11Device* device) :
+            explicit NormalMapEffect(_In_ ID3D11Device* device) :
                 NormalMapEffect(device, false)
             {
             }
 
-            DIRECTX_TOOLKIT_API NormalMapEffect(NormalMapEffect&&) noexcept;
-            DIRECTX_TOOLKIT_API NormalMapEffect& operator= (NormalMapEffect&&) noexcept;
+            NormalMapEffect(NormalMapEffect&&) noexcept;
+            NormalMapEffect& operator= (NormalMapEffect&&) noexcept;
 
             NormalMapEffect(NormalMapEffect const&) = delete;
             NormalMapEffect& operator= (NormalMapEffect const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~NormalMapEffect() override;
+            ~NormalMapEffect() override;
 
             // IEffect methods.
-            DIRECTX_TOOLKIT_API void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl GetVertexShaderBytecode(
-                _Out_ void const** pShaderByteCode,
-                _Out_ size_t* pByteCodeLength) override;
+            void __cdecl GetVertexShaderBytecode(_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength) override;
 
             // Camera settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetWorld(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetView(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetProjection(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
+            void XM_CALLCONV SetWorld(FXMMATRIX value) override;
+            void XM_CALLCONV SetView(FXMMATRIX value) override;
+            void XM_CALLCONV SetProjection(FXMMATRIX value) override;
+            void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
 
             // Material settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetEmissiveColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetSpecularColor(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void __cdecl SetSpecularPower(float value);
-            DIRECTX_TOOLKIT_API void __cdecl DisableSpecular();
-            DIRECTX_TOOLKIT_API void __cdecl SetAlpha(float value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
+            void XM_CALLCONV SetDiffuseColor(FXMVECTOR value);
+            void XM_CALLCONV SetEmissiveColor(FXMVECTOR value);
+            void XM_CALLCONV SetSpecularColor(FXMVECTOR value);
+            void __cdecl SetSpecularPower(float value);
+            void __cdecl DisableSpecular();
+            void __cdecl SetAlpha(float value);
+            void XM_CALLCONV SetColorAndAlpha(FXMVECTOR value);
 
             // Light settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
+            void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl SetLightEnabled(int whichLight, bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
+            void __cdecl SetLightEnabled(int whichLight, bool value) override;
+            void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
+            void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
+            void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl EnableDefaultLighting() override;
+            void __cdecl EnableDefaultLighting() override;
 
             // Fog settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogStart(float value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetFogEnd(float value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
+            void __cdecl SetFogEnabled(bool value) override;
+            void __cdecl SetFogStart(float value) override;
+            void __cdecl SetFogEnd(float value) override;
+            void XM_CALLCONV SetFogColor(FXMVECTOR value) override;
 
             // Vertex color setting.
-            DIRECTX_TOOLKIT_API void __cdecl SetVertexColorEnabled(bool value);
+            void __cdecl SetVertexColorEnabled(bool value);
 
             // Texture setting - albedo, normal and specular intensity
-            DIRECTX_TOOLKIT_API void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
-            DIRECTX_TOOLKIT_API void __cdecl SetNormalTexture(_In_opt_ ID3D11ShaderResourceView* value);
-            DIRECTX_TOOLKIT_API void __cdecl SetSpecularTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetNormalTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetSpecularTexture(_In_opt_ ID3D11ShaderResourceView* value);
 
             // Normal compression settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetBiasedVertexNormals(bool value);
+            void __cdecl SetBiasedVertexNormals(bool value);
 
             // Instancing settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetInstancingEnabled(bool value);
+            void __cdecl SetInstancingEnabled(bool value);
 
         protected:
             // Private implementation.
@@ -680,14 +643,14 @@ namespace DirectX
 
             std::unique_ptr<Impl> pImpl;
 
-            DIRECTX_TOOLKIT_API NormalMapEffect(_In_ ID3D11Device* device, bool skinningEnabled);
+            NormalMapEffect(_In_ ID3D11Device* device, bool skinningEnabled);
 
             // Unsupported interface methods.
-            DIRECTX_TOOLKIT_API void __cdecl SetLightingEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetPerPixelLighting(bool value) override;
+            void __cdecl SetLightingEnabled(bool value) override;
+            void __cdecl SetPerPixelLighting(bool value) override;
         };
 
-        class DIRECTX_TOOLKIT_API SkinnedNormalMapEffect : public NormalMapEffect, public IEffectSkinning
+        class SkinnedNormalMapEffect : public NormalMapEffect, public IEffectSkinning
         {
         public:
             explicit SkinnedNormalMapEffect(_In_ ID3D11Device* device) :
@@ -701,8 +664,6 @@ namespace DirectX
             SkinnedNormalMapEffect(SkinnedNormalMapEffect const&) = delete;
             SkinnedNormalMapEffect& operator= (SkinnedNormalMapEffect const&) = delete;
 
-            ~SkinnedNormalMapEffect() override;
-
             // Animation settings.
             void __cdecl SetWeightsPerVertex(int value) override;
             void __cdecl SetBoneTransforms(_In_reads_(count) XMMATRIX const* value, size_t count) override;
@@ -714,73 +675,71 @@ namespace DirectX
         class PBREffect : public IEffect, public IEffectMatrices, public IEffectLights
         {
         public:
-            DIRECTX_TOOLKIT_API inline explicit PBREffect(_In_ ID3D11Device* device) :
+            explicit PBREffect(_In_ ID3D11Device* device) :
                 PBREffect(device, false)
             {
             }
 
-            DIRECTX_TOOLKIT_API PBREffect(PBREffect&&) noexcept;
-            DIRECTX_TOOLKIT_API PBREffect& operator= (PBREffect&&) noexcept;
+            PBREffect(PBREffect&&) noexcept;
+            PBREffect& operator= (PBREffect&&) noexcept;
 
             PBREffect(PBREffect const&) = delete;
             PBREffect& operator= (PBREffect const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~PBREffect() override;
+            ~PBREffect() override;
 
             // IEffect methods.
-            DIRECTX_TOOLKIT_API void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl GetVertexShaderBytecode(
-                _Out_ void const** pShaderByteCode,
-                _Out_ size_t* pByteCodeLength) override;
+            void __cdecl GetVertexShaderBytecode(_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength) override;
 
             // Camera settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetWorld(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetView(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetProjection(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
+            void XM_CALLCONV SetWorld(FXMMATRIX value) override;
+            void XM_CALLCONV SetView(FXMMATRIX value) override;
+            void XM_CALLCONV SetProjection(FXMMATRIX value) override;
+            void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
 
             // Light settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetLightEnabled(int whichLight, bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
+            void __cdecl SetLightEnabled(int whichLight, bool value) override;
+            void XM_CALLCONV SetLightDirection(int whichLight, FXMVECTOR value) override;
+            void XM_CALLCONV SetLightDiffuseColor(int whichLight, FXMVECTOR value) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl EnableDefaultLighting() override;
+            void __cdecl EnableDefaultLighting() override;
 
             // PBR Settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetAlpha(float value);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetConstantAlbedo(FXMVECTOR value);
-            DIRECTX_TOOLKIT_API void __cdecl SetConstantMetallic(float value);
-            DIRECTX_TOOLKIT_API void __cdecl SetConstantRoughness(float value);
+            void __cdecl SetAlpha(float value);
+            void XM_CALLCONV SetConstantAlbedo(FXMVECTOR value);
+            void __cdecl SetConstantMetallic(float value);
+            void __cdecl SetConstantRoughness(float value);
 
             // Texture settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetAlbedoTexture(_In_opt_ ID3D11ShaderResourceView* value);
-            DIRECTX_TOOLKIT_API void __cdecl SetNormalTexture(_In_opt_ ID3D11ShaderResourceView* value);
-            DIRECTX_TOOLKIT_API void __cdecl SetRMATexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetAlbedoTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetNormalTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetRMATexture(_In_opt_ ID3D11ShaderResourceView* value);
 
-            DIRECTX_TOOLKIT_API void __cdecl SetEmissiveTexture(_In_opt_ ID3D11ShaderResourceView* value);
+            void __cdecl SetEmissiveTexture(_In_opt_ ID3D11ShaderResourceView* value);
 
-            DIRECTX_TOOLKIT_API void __cdecl SetSurfaceTextures(
+            void __cdecl SetSurfaceTextures(
                 _In_opt_ ID3D11ShaderResourceView* albedo,
                 _In_opt_ ID3D11ShaderResourceView* normal,
                 _In_opt_ ID3D11ShaderResourceView* roughnessMetallicAmbientOcclusion);
 
-            DIRECTX_TOOLKIT_API void __cdecl SetIBLTextures(
+            void __cdecl SetIBLTextures(
                 _In_opt_ ID3D11ShaderResourceView* radiance,
                 int numRadianceMips,
                 _In_opt_ ID3D11ShaderResourceView* irradiance);
 
             // Normal compression settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetBiasedVertexNormals(bool value);
+            void __cdecl SetBiasedVertexNormals(bool value);
 
             // Instancing settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetInstancingEnabled(bool value);
+            void __cdecl SetInstancingEnabled(bool value);
 
             // Velocity buffer settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetVelocityGeneration(bool value);
+            void __cdecl SetVelocityGeneration(bool value);
 
             // Render target size, required for velocity buffer output.
-            DIRECTX_TOOLKIT_API void __cdecl SetRenderTargetSizeInPixels(int width, int height);
+            void __cdecl SetRenderTargetSizeInPixels(int width, int height);
 
         protected:
             // Private implementation.
@@ -788,16 +747,16 @@ namespace DirectX
 
             std::unique_ptr<Impl> pImpl;
 
-            DIRECTX_TOOLKIT_API PBREffect(_In_ ID3D11Device* device, bool skinningEnabled);
+            PBREffect(_In_ ID3D11Device* device, bool skinningEnabled);
 
             // Unsupported interface methods.
-            DIRECTX_TOOLKIT_API void __cdecl SetLightingEnabled(bool value) override;
-            DIRECTX_TOOLKIT_API void __cdecl SetPerPixelLighting(bool value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
+            void __cdecl SetLightingEnabled(bool value) override;
+            void __cdecl SetPerPixelLighting(bool value) override;
+            void XM_CALLCONV SetAmbientLightColor(FXMVECTOR value) override;
+            void XM_CALLCONV SetLightSpecularColor(int whichLight, FXMVECTOR value) override;
         };
 
-        class DIRECTX_TOOLKIT_API SkinnedPBREffect : public PBREffect, public IEffectSkinning
+        class SkinnedPBREffect : public PBREffect, public IEffectSkinning
         {
         public:
             explicit SkinnedPBREffect(_In_ ID3D11Device* device) :
@@ -811,8 +770,6 @@ namespace DirectX
             SkinnedPBREffect(SkinnedPBREffect const&) = delete;
             SkinnedPBREffect& operator= (SkinnedPBREffect const&) = delete;
 
-            ~SkinnedPBREffect() override;
-
             // Animation settings.
             void __cdecl SetWeightsPerVertex(int value) override;
             void __cdecl SetBoneTransforms(_In_reads_(count) XMMATRIX const* value, size_t count) override;
@@ -824,7 +781,7 @@ namespace DirectX
         class DebugEffect : public IEffect, public IEffectMatrices
         {
         public:
-            enum Mode : uint32_t
+            enum Mode
             {
                 Mode_Default = 0,   // Hemispherical ambient lighting
                 Mode_Normals,       // RGB normals
@@ -832,42 +789,40 @@ namespace DirectX
                 Mode_BiTangents,    // RGB bi-tangents
             };
 
-            DIRECTX_TOOLKIT_API explicit DebugEffect(_In_ ID3D11Device* device);
+            explicit DebugEffect(_In_ ID3D11Device* device);
 
-            DIRECTX_TOOLKIT_API DebugEffect(DebugEffect&&) noexcept;
-            DIRECTX_TOOLKIT_API DebugEffect& operator= (DebugEffect&&) noexcept;
+            DebugEffect(DebugEffect&&) noexcept;
+            DebugEffect& operator= (DebugEffect&&) noexcept;
 
             DebugEffect(DebugEffect const&) = delete;
             DebugEffect& operator= (DebugEffect const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~DebugEffect() override;
+            ~DebugEffect() override;
 
             // IEffect methods.
-            DIRECTX_TOOLKIT_API void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl Apply(_In_ ID3D11DeviceContext* deviceContext) override;
 
-            DIRECTX_TOOLKIT_API void __cdecl GetVertexShaderBytecode(
-                _Out_ void const** pShaderByteCode,
-                _Out_ size_t* pByteCodeLength) override;
+            void __cdecl GetVertexShaderBytecode(_Out_ void const** pShaderByteCode, _Out_ size_t* pByteCodeLength) override;
 
             // Camera settings.
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetWorld(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetView(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetProjection(FXMMATRIX value) override;
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
+            void XM_CALLCONV SetWorld(FXMMATRIX value) override;
+            void XM_CALLCONV SetView(FXMMATRIX value) override;
+            void XM_CALLCONV SetProjection(FXMMATRIX value) override;
+            void XM_CALLCONV SetMatrices(FXMMATRIX world, CXMMATRIX view, CXMMATRIX projection) override;
 
             // Debug Settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetMode(Mode debugMode);
-            DIRECTX_TOOLKIT_API void XM_CALLCONV SetHemisphericalAmbientColor(FXMVECTOR upper, FXMVECTOR lower);
-            DIRECTX_TOOLKIT_API void __cdecl SetAlpha(float value);
+            void __cdecl SetMode(Mode debugMode);
+            void XM_CALLCONV SetHemisphericalAmbientColor(FXMVECTOR upper, FXMVECTOR lower);
+            void __cdecl SetAlpha(float value);
 
             // Vertex color setting.
-            DIRECTX_TOOLKIT_API void __cdecl SetVertexColorEnabled(bool value);
+            void __cdecl SetVertexColorEnabled(bool value);
 
             // Normal compression settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetBiasedVertexNormals(bool value);
+            void __cdecl SetBiasedVertexNormals(bool value);
 
             // Instancing settings.
-            DIRECTX_TOOLKIT_API void __cdecl SetInstancingEnabled(bool value);
+            void __cdecl SetInstancingEnabled(bool value);
 
         private:
             // Private implementation.
@@ -878,7 +833,7 @@ namespace DirectX
 
         //------------------------------------------------------------------------------
         // Abstract interface to factory for sharing effects and texture resources
-        class DIRECTX_TOOLKIT_API IEffectFactory
+        class IEffectFactory
         {
         public:
             virtual ~IEffectFactory() = default;
@@ -886,7 +841,7 @@ namespace DirectX
             IEffectFactory(const IEffectFactory&) = delete;
             IEffectFactory& operator=(const IEffectFactory&) = delete;
 
-            struct DIRECTX_TOOLKIT_API EffectInfo
+            struct EffectInfo
             {
                 const wchar_t*      name;
                 bool                perVertexColor;
@@ -926,14 +881,9 @@ namespace DirectX
                 }
             };
 
-            virtual std::shared_ptr<IEffect> __cdecl CreateEffect(
-                _In_ const EffectInfo& info,
-                _In_opt_ ID3D11DeviceContext* deviceContext) = 0;
+            virtual std::shared_ptr<IEffect> __cdecl CreateEffect(_In_ const EffectInfo& info, _In_opt_ ID3D11DeviceContext* deviceContext) = 0;
 
-            virtual void __cdecl CreateTexture(
-                _In_z_ const wchar_t* name,
-                _In_opt_ ID3D11DeviceContext* deviceContext,
-                _Outptr_ ID3D11ShaderResourceView** textureView) = 0;
+            virtual void __cdecl CreateTexture(_In_z_ const wchar_t* name, _In_opt_ ID3D11DeviceContext* deviceContext, _Outptr_ ID3D11ShaderResourceView** textureView) = 0;
 
         protected:
             IEffectFactory() = default;
@@ -946,37 +896,32 @@ namespace DirectX
         class EffectFactory : public IEffectFactory
         {
         public:
-            DIRECTX_TOOLKIT_API explicit EffectFactory(_In_ ID3D11Device* device);
+            explicit EffectFactory(_In_ ID3D11Device* device);
 
-            DIRECTX_TOOLKIT_API EffectFactory(EffectFactory&&) noexcept;
-            DIRECTX_TOOLKIT_API EffectFactory& operator= (EffectFactory&&) noexcept;
+            EffectFactory(EffectFactory&&) noexcept;
+            EffectFactory& operator= (EffectFactory&&) noexcept;
 
             EffectFactory(EffectFactory const&) = delete;
             EffectFactory& operator= (EffectFactory const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~EffectFactory() override;
+            ~EffectFactory() override;
 
             // IEffectFactory methods.
-            DIRECTX_TOOLKIT_API std::shared_ptr<IEffect> __cdecl CreateEffect(
-                _In_ const EffectInfo& info,
-                _In_opt_ ID3D11DeviceContext* deviceContext) override;
-            DIRECTX_TOOLKIT_API void __cdecl CreateTexture(
-                _In_z_ const wchar_t* name,
-                _In_opt_ ID3D11DeviceContext* deviceContext,
-                _Outptr_ ID3D11ShaderResourceView** textureView) override;
+            std::shared_ptr<IEffect> __cdecl CreateEffect(_In_ const EffectInfo& info, _In_opt_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl CreateTexture(_In_z_ const wchar_t* name, _In_opt_ ID3D11DeviceContext* deviceContext, _Outptr_ ID3D11ShaderResourceView** textureView) override;
 
             // Settings.
-            DIRECTX_TOOLKIT_API void __cdecl ReleaseCache();
+            void __cdecl ReleaseCache();
 
-            DIRECTX_TOOLKIT_API void __cdecl SetSharing(bool enabled) noexcept;
+            void __cdecl SetSharing(bool enabled) noexcept;
 
-            DIRECTX_TOOLKIT_API void __cdecl EnableNormalMapEffect(bool enabled) noexcept;
-            DIRECTX_TOOLKIT_API void __cdecl EnableForceSRGB(bool forceSRGB) noexcept;
+            void __cdecl EnableNormalMapEffect(bool enabled) noexcept;
+            void __cdecl EnableForceSRGB(bool forceSRGB) noexcept;
 
-            DIRECTX_TOOLKIT_API void __cdecl SetDirectory(_In_opt_z_ const wchar_t* path) noexcept;
+            void __cdecl SetDirectory(_In_opt_z_ const wchar_t* path) noexcept;
 
             // Properties.
-            DIRECTX_TOOLKIT_API ID3D11Device* GetDevice() const noexcept;
+            ID3D11Device* GetDevice() const noexcept;
 
         private:
             // Private implementation.
@@ -990,36 +935,31 @@ namespace DirectX
         class PBREffectFactory : public IEffectFactory
         {
         public:
-            DIRECTX_TOOLKIT_API explicit PBREffectFactory(_In_ ID3D11Device* device);
+            explicit PBREffectFactory(_In_ ID3D11Device* device);
 
-            DIRECTX_TOOLKIT_API PBREffectFactory(PBREffectFactory&&) noexcept;
-            DIRECTX_TOOLKIT_API PBREffectFactory& operator= (PBREffectFactory&&) noexcept;
+            PBREffectFactory(PBREffectFactory&&) noexcept;
+            PBREffectFactory& operator= (PBREffectFactory&&) noexcept;
 
             PBREffectFactory(PBREffectFactory const&) = delete;
             PBREffectFactory& operator= (PBREffectFactory const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~PBREffectFactory() override;
+            ~PBREffectFactory() override;
 
             // IEffectFactory methods.
-            DIRECTX_TOOLKIT_API std::shared_ptr<IEffect> __cdecl CreateEffect(
-                _In_ const EffectInfo& info,
-                _In_opt_ ID3D11DeviceContext* deviceContext) override;
-            DIRECTX_TOOLKIT_API void __cdecl CreateTexture(
-                _In_z_ const wchar_t* name,
-                _In_opt_ ID3D11DeviceContext* deviceContext,
-                _Outptr_ ID3D11ShaderResourceView** textureView) override;
+            std::shared_ptr<IEffect> __cdecl CreateEffect(_In_ const EffectInfo& info, _In_opt_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl CreateTexture(_In_z_ const wchar_t* name, _In_opt_ ID3D11DeviceContext* deviceContext, _Outptr_ ID3D11ShaderResourceView** textureView) override;
 
             // Settings.
-            DIRECTX_TOOLKIT_API void __cdecl ReleaseCache();
+            void __cdecl ReleaseCache();
 
-            DIRECTX_TOOLKIT_API void __cdecl SetSharing(bool enabled) noexcept;
+            void __cdecl SetSharing(bool enabled) noexcept;
 
-            DIRECTX_TOOLKIT_API void __cdecl EnableForceSRGB(bool forceSRGB) noexcept;
+            void __cdecl EnableForceSRGB(bool forceSRGB) noexcept;
 
-            DIRECTX_TOOLKIT_API void __cdecl SetDirectory(_In_opt_z_ const wchar_t* path) noexcept;
+            void __cdecl SetDirectory(_In_opt_z_ const wchar_t* path) noexcept;
 
             // Properties.
-            DIRECTX_TOOLKIT_API ID3D11Device* GetDevice() const noexcept;
+            ID3D11Device* GetDevice() const noexcept;
 
         private:
             // Private implementation.
@@ -1033,27 +973,22 @@ namespace DirectX
         class DGSLEffectFactory : public IEffectFactory
         {
         public:
-            DIRECTX_TOOLKIT_API explicit DGSLEffectFactory(_In_ ID3D11Device* device);
+            explicit DGSLEffectFactory(_In_ ID3D11Device* device);
 
-            DIRECTX_TOOLKIT_API DGSLEffectFactory(DGSLEffectFactory&&) noexcept;
-            DIRECTX_TOOLKIT_API DGSLEffectFactory& operator= (DGSLEffectFactory&&) noexcept;
+            DGSLEffectFactory(DGSLEffectFactory&&) noexcept;
+            DGSLEffectFactory& operator= (DGSLEffectFactory&&) noexcept;
 
             DGSLEffectFactory(DGSLEffectFactory const&) = delete;
             DGSLEffectFactory& operator= (DGSLEffectFactory const&) = delete;
 
-            DIRECTX_TOOLKIT_API ~DGSLEffectFactory() override;
+            ~DGSLEffectFactory() override;
 
             // IEffectFactory methods.
-            DIRECTX_TOOLKIT_API std::shared_ptr<IEffect> __cdecl CreateEffect(
-                _In_ const EffectInfo& info,
-                _In_opt_ ID3D11DeviceContext* deviceContext) override;
-            DIRECTX_TOOLKIT_API void __cdecl CreateTexture(
-                _In_z_ const wchar_t* name,
-                _In_opt_ ID3D11DeviceContext* deviceContext,
-                _Outptr_ ID3D11ShaderResourceView** textureView) override;
+            std::shared_ptr<IEffect> __cdecl CreateEffect(_In_ const EffectInfo& info, _In_opt_ ID3D11DeviceContext* deviceContext) override;
+            void __cdecl CreateTexture(_In_z_ const wchar_t* name, _In_opt_ ID3D11DeviceContext* deviceContext, _Outptr_ ID3D11ShaderResourceView** textureView) override;
 
             // DGSL methods.
-            struct DIRECTX_TOOLKIT_API DGSLEffectInfo : public EffectInfo
+            struct DGSLEffectInfo : public EffectInfo
             {
                 static constexpr int BaseTextureOffset = 4;
 
@@ -1068,25 +1003,21 @@ namespace DirectX
                 }
             };
 
-            DIRECTX_TOOLKIT_API virtual std::shared_ptr<IEffect> __cdecl CreateDGSLEffect(
-                _In_ const DGSLEffectInfo& info,
-                _In_opt_ ID3D11DeviceContext* deviceContext);
+            virtual std::shared_ptr<IEffect> __cdecl CreateDGSLEffect(_In_ const DGSLEffectInfo& info, _In_opt_ ID3D11DeviceContext* deviceContext);
 
-            DIRECTX_TOOLKIT_API virtual void __cdecl CreatePixelShader(
-                _In_z_ const wchar_t* shader,
-                _Outptr_ ID3D11PixelShader** pixelShader);
+            virtual void __cdecl CreatePixelShader(_In_z_ const wchar_t* shader, _Outptr_ ID3D11PixelShader** pixelShader);
 
             // Settings.
-            DIRECTX_TOOLKIT_API void __cdecl ReleaseCache();
+            void __cdecl ReleaseCache();
 
-            DIRECTX_TOOLKIT_API void __cdecl SetSharing(bool enabled) noexcept;
+            void __cdecl SetSharing(bool enabled) noexcept;
 
-            DIRECTX_TOOLKIT_API void __cdecl EnableForceSRGB(bool forceSRGB) noexcept;
+            void __cdecl EnableForceSRGB(bool forceSRGB) noexcept;
 
-            DIRECTX_TOOLKIT_API void __cdecl SetDirectory(_In_opt_z_ const wchar_t* path) noexcept;
+            void __cdecl SetDirectory(_In_opt_z_ const wchar_t* path) noexcept;
 
             // Properties.
-            DIRECTX_TOOLKIT_API ID3D11Device* GetDevice() const noexcept;
+            ID3D11Device* GetDevice() const noexcept;
 
         private:
             // Private implementation.
@@ -1096,9 +1027,3 @@ namespace DirectX
         };
     }
 }
-
-#if defined(DIRECTX_TOOLKIT_IMPORT) && defined(_MSC_VER)
-#pragma warning(pop)
-#endif
-
-#endif // __DIRECTXTK_EFFECTS_H__

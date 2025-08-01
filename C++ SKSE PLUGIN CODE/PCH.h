@@ -1,39 +1,53 @@
 #pragma once
 
-// SKSE first (it has its own windows includes)
-#include "RE/Skyrim.h"
-#include "SKSE/SKSE.h"
+// CommonLibSSE-NG (must be first)
+#include <RE/Skyrim.h>
+#include <SKSE/SKSE.h>
+#include <REL/Relocation.h>
 
-// Standard library
-#include <algorithm>
-#include <array>
-#include <chrono>
-#include <cstdint>
-#include <filesystem>
-#include <fstream>
-#include <iomanip>
-#include <memory>
-#include <sstream>
-#include <string>
-#include <type_traits>
-#include <utility>
-#include <vector>
-
-// Then Windows API (after SKSE so it doesn't conflict)
-#define NOMINMAX
+// Windows headers
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <ShlObj_core.h>
-#include <combaseapi.h>
-#include <d3d11.h>
-#include <dxgi.h>
-#include <dxgi1_2.h>
-#include <wincodec.h>
+#include <windows.h>
 #include <wrl/client.h>
+#include <combaseapi.h>
+#include <propvarutil.h>
+#include <propsys.h>
 
-// DirectXTex
+// DirectX headers
+#include <d3d11.h>
+#include <dxgi1_2.h>
 #include <DirectXTex.h>
 
-// Helpers for SKSE plugin
+// WIC headers
+#include <wincodec.h>
+
+// Standard library headers
+#include <atomic>
+#include <string>
+#include <vector>
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <thread>
+#include <chrono>
+#include <algorithm>
+#include <filesystem>
+#include <iomanip>
+#include <cctype>
+#include <cmath>
+#include <exception>
+#include <mutex>
+#include <unordered_map>  // For Config system
+#include <ctime>          // For timestamp functions
+
+// CRITICAL: Include Config.h in PCH so it's available everywhere
+#include "Config.h"
+
+// COM smart pointer namespace
+using Microsoft::WRL::ComPtr;
+
+// Define this to indicate PCH includes DirectX
+#define PCH_INCLUDES_DIRECTX
+
 using namespace std::literals;
-using namespace REL::literals;

@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/directxmath-x64-windows-2025-04-03-29ff0a5f-cab7-430b-a4a7-a0bf53c7f38d",
-  "name": "directxmath:x64-windows@2025-04-03 bc938dde840be4b7710c3dfaf1f085062457a22ebcf558d215876afa9b66541d",
+  "documentNamespace": "https://spdx.org/spdxdocs/directxmath-x64-windows-2022-12-12-21c9b256-322e-4e52-bc4c-8d13341291f2",
+  "name": "directxmath:x64-windows@2022-12-12 e1bead48111f678b937ba7f9bb1070ba5189893d75fd61aaf02887573e9914c7",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-01-24-874e302b1fa28cc81caefbb1483f80103c51ab52"
+      "Tool: vcpkg-2025-04-01-9c604254140797833b6f76908435c9fcbf09920e"
     ],
-    "created": "2025-05-02T21:39:55Z"
+    "created": "2025-06-18T18:49:01Z"
   },
   "relationships": [
     {
@@ -28,26 +28,6 @@
       "relatedSpdxElement": "SPDXRef-file-1"
     },
     {
-      "spdxElementId": "SPDXRef-port",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-file-2"
-    },
-    {
-      "spdxElementId": "SPDXRef-port",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-file-3"
-    },
-    {
-      "spdxElementId": "SPDXRef-port",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-file-4"
-    },
-    {
-      "spdxElementId": "SPDXRef-port",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-file-5"
-    },
-    {
       "spdxElementId": "SPDXRef-binary",
       "relationshipType": "GENERATED_FROM",
       "relatedSpdxElement": "SPDXRef-port"
@@ -63,23 +43,8 @@
       "relatedSpdxElement": "SPDXRef-port"
     },
     {
-      "spdxElementId": "SPDXRef-file-2",
-      "relationshipType": "CONTAINED_BY",
-      "relatedSpdxElement": "SPDXRef-port"
-    },
-    {
-      "spdxElementId": "SPDXRef-file-3",
-      "relationshipType": "CONTAINED_BY",
-      "relatedSpdxElement": "SPDXRef-port"
-    },
-    {
-      "spdxElementId": "SPDXRef-file-4",
-      "relationshipType": "CONTAINED_BY",
-      "relatedSpdxElement": "SPDXRef-port"
-    },
-    {
-      "spdxElementId": "SPDXRef-file-5",
-      "relationshipType": "CONTAINED_BY",
+      "spdxElementId": "SPDXRef-file-1",
+      "relationshipType": "DEPENDENCY_MANIFEST_OF",
       "relatedSpdxElement": "SPDXRef-port"
     }
   ],
@@ -87,8 +52,8 @@
     {
       "name": "directxmath",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "2025-04-03",
-      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@b199edaeaf0b2b92a634dfeb1289879ea5eeae7f",
+      "versionInfo": "2022-12-12",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@ecd21e108091a293a27869c9c093ad558ffcdc42",
       "homepage": "https://github.com/Microsoft/DirectXMath",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -99,7 +64,7 @@
     {
       "name": "directxmath:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "bc938dde840be4b7710c3dfaf1f085062457a22ebcf558d215876afa9b66541d",
+      "versionInfo": "e1bead48111f678b937ba7f9bb1070ba5189893d75fd61aaf02887573e9914c7",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -109,14 +74,14 @@
     {
       "SPDXID": "SPDXRef-resource-0",
       "name": "Microsoft/DirectXMath",
-      "downloadLocation": "git+https://github.com/Microsoft/DirectXMath@apr2025",
+      "downloadLocation": "git+https://github.com/Microsoft/DirectXMath@dec2022",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "c7d3b107180b269c5c4e823fa51d96a316dc35cace3cb13f030022d9096c9465e8a770559419176692b047574fd67c96d8527abd8817998264a149eee0b88c9d"
+          "checksumValue": "61da5464e4a6b0e405307496b0b925fc52e3f7acd3841527c5f8e86d5188865767dd44d4277f034c46b0088d1ee52da72f747c5965cd37411600418b605d4702"
         }
       ]
     },
@@ -124,86 +89,38 @@
       "SPDXID": "SPDXRef-resource-1",
       "name": "sal.h",
       "packageFileName": "sal.h",
-      "downloadLocation": "https://raw.githubusercontent.com/dotnet/runtime/v9.0.2/src/coreclr/pal/inc/rt/sal.h",
+      "downloadLocation": "https://raw.githubusercontent.com/dotnet/corert/master/src/Native/inc/unix/sal.h",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "8085f67bfa4ce01ae89461cadf72454a9552fde3f08b2dcc3de36b9830e29ce7a6192800f8a5cb2a66af9637be0017e85719826a4cfdade508ae97f319e0ee8e"
+          "checksumValue": "1643571673195d9eb892d2f2ac76eac7113ef7aa0ca116d79f3e4d3dc9df8a31600a9668b7e7678dfbe5a76906f9e0734ef8d6db0903ccc68fc742dd8238d8b0"
         }
       ]
     }
   ],
   "files": [
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/b199edaeaf0b2b92a634dfeb1289879ea5eeae7f/Linux-SHMath-SAL.patch",
+      "fileName": "./portfile.cmake",
       "SPDXID": "SPDXRef-file-0",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "16032bc1bf50f695922c242e1ca2c3a9aa4160d81808eab54cd4c7fbbe86ca10"
+          "checksumValue": "48050c3e8003e906d947a56b90bbf87d39336c16b1baa58c9f84f4150915c779"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/b199edaeaf0b2b92a634dfeb1289879ea5eeae7f/MinGW-fix.patch",
+      "fileName": "./vcpkg.json",
       "SPDXID": "SPDXRef-file-1",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "cbacb91ceefad2fac32f6310d83c99a5e426c463364ce7c7f91f032a5216a0ab"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/b199edaeaf0b2b92a634dfeb1289879ea5eeae7f/portfile.cmake",
-      "SPDXID": "SPDXRef-file-2",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "583b6154abf7caa31154fc85585a2db8f5edede728eaf29f5aadbf30a5fd3be0"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/b199edaeaf0b2b92a634dfeb1289879ea5eeae7f/shmathusage",
-      "SPDXID": "SPDXRef-file-3",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "cca5652f8777e277d1c9fd47fdd49b134c289964bfbb74ad41111dfc76fd0a4f"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/b199edaeaf0b2b92a634dfeb1289879ea5eeae7f/usage",
-      "SPDXID": "SPDXRef-file-4",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "5c4fc359847a72a252b8dabb06a398fd83dd19764b52fb08a2bf5f72bb9784cd"
-        }
-      ],
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
-    },
-    {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/b199edaeaf0b2b92a634dfeb1289879ea5eeae7f/vcpkg.json",
-      "SPDXID": "SPDXRef-file-5",
-      "checksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "ba2e133d7e4f3a7b25f6e18608d948dabe84fb6fd6b7b5ce52bf6136e8259ca4"
+          "checksumValue": "8ffecf695fe09f6f0b0d04324dfa9a9f6288f1f01d45da1c40ba8a3ae1789a6b"
         }
       ],
       "licenseConcluded": "NOASSERTION",

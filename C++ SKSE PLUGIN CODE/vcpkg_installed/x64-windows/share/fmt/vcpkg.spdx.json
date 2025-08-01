@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/fmt-x64-windows-11.0.2#1-b2d8068f-7644-4319-b8b7-50af48c82b84",
-  "name": "fmt:x64-windows@11.0.2#1 a97aef268a33f79770bbf02ab774588936a1d60a01ea5845f5f42c828773eaf5",
+  "documentNamespace": "https://spdx.org/spdxdocs/fmt-x64-windows-9.1.0#1-86428c1b-c2b3-4d1e-b821-020818fab75c",
+  "name": "fmt:x64-windows@9.1.0#1 5a3d4ef0d6604728a00942b78bc88d938981119995d060a037d6191583c47dba",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-01-24-874e302b1fa28cc81caefbb1483f80103c51ab52"
+      "Tool: vcpkg-2025-04-01-9c604254140797833b6f76908435c9fcbf09920e"
     ],
-    "created": "2025-05-02T21:35:25Z"
+    "created": "2025-06-18T18:46:25Z"
   },
   "relationships": [
     {
@@ -71,25 +71,30 @@
       "spdxElementId": "SPDXRef-file-4",
       "relationshipType": "CONTAINED_BY",
       "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-4",
+      "relationshipType": "DEPENDENCY_MANIFEST_OF",
+      "relatedSpdxElement": "SPDXRef-port"
     }
   ],
   "packages": [
     {
       "name": "fmt",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "11.0.2#1",
-      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@07a73a7565e5de9eb42e90c16c133bdfdfebbcda",
+      "versionInfo": "9.1.0#1",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@3f452404270b508daf355b72031ad3ee7d0d5751",
       "homepage": "https://github.com/fmtlib/fmt",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
-      "description": "{fmt} is an open-source formatting library providing a fast and safe alternative to C stdio and C++ iostreams.",
+      "description": "Formatting library for C++. It can be used as a safe alternative to printf or as a fast alternative to IOStreams.",
       "comment": "This is the port (recipe) consumed by vcpkg."
     },
     {
       "name": "fmt:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "a97aef268a33f79770bbf02ab774588936a1d60a01ea5845f5f42c828773eaf5",
+      "versionInfo": "5a3d4ef0d6604728a00942b78bc88d938981119995d060a037d6191583c47dba",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -99,57 +104,57 @@
     {
       "SPDXID": "SPDXRef-resource-0",
       "name": "fmtlib/fmt",
-      "downloadLocation": "git+https://github.com/fmtlib/fmt@11.0.2",
+      "downloadLocation": "git+https://github.com/fmtlib/fmt@9.1.0",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "47ff6d289dcc22681eea6da465b0348172921e7cafff8fd57a1540d3232cc6b53250a4625c954ee0944c87963b17680ecbc3ea123e43c2c822efe0dc6fa6cef3"
+          "checksumValue": "a18442042722dd48e20714ec034a12fcc0576c9af7be5188586970e2edf47529825bdc99af366b1d5891630c8dbf6f63bfa9f012e77ab3d3ed80d1a118e3b2be"
         }
       ]
     }
   ],
   "files": [
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/07a73a7565e5de9eb42e90c16c133bdfdfebbcda/fix-pass-utf-8-only-if-the-compiler-is-MSVC-at-build.patch",
+      "fileName": "./fix-format-conflict.patch",
       "SPDXID": "SPDXRef-file-0",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d74f4f0f8d1e4fe92276c3c95b00b6a3add53afbb3e862741da425d968aca674"
+          "checksumValue": "2f994832581a94b22493dfc56a2ec11cc99abaaec368d1543a66e96e33bca626"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/07a73a7565e5de9eb42e90c16c133bdfdfebbcda/fix-write-batch.patch",
+      "fileName": "./fix-write-batch.patch",
       "SPDXID": "SPDXRef-file-1",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5658d7b2362cddca318c21de795877c17cffbe62603860507291dccc40d537f3"
+          "checksumValue": "d71ed7679da338ca7cc25fb1f7e8af51f15c43dfde26dde2a5904927fe9e7994"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/07a73a7565e5de9eb42e90c16c133bdfdfebbcda/portfile.cmake",
+      "fileName": "./portfile.cmake",
       "SPDXID": "SPDXRef-file-2",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d0adfee327b3609a41a474dcd75b2dd78090857f4335af029a43bc857929934e"
+          "checksumValue": "8b383837254930b3ef57bf741e3f1b97aa7746231c88125d38f126dcb1752ae6"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/07a73a7565e5de9eb42e90c16c133bdfdfebbcda/usage",
+      "fileName": "./usage",
       "SPDXID": "SPDXRef-file-3",
       "checksums": [
         {
@@ -161,12 +166,12 @@
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/07a73a7565e5de9eb42e90c16c133bdfdfebbcda/vcpkg.json",
+      "fileName": "./vcpkg.json",
       "SPDXID": "SPDXRef-file-4",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "8d8fdba284a4cb69f8c42a8c211d724af7a8d8522d0f098d2dd35f7bf1c5caa6"
+          "checksumValue": "75a7614ba0824c4f25e3dda2cdfeb4164237d3aad2f21a33310bc0fbdd095ed2"
         }
       ],
       "licenseConcluded": "NOASSERTION",

@@ -55,13 +55,12 @@ if(_IMPORT_PREFIX STREQUAL "/")
 endif()
 
 # Create imported target Microsoft::DirectXTex
-add_library(Microsoft::DirectXTex SHARED IMPORTED)
+add_library(Microsoft::DirectXTex STATIC IMPORTED)
 
 set_target_properties(Microsoft::DirectXTex PROPERTIES
-  INTERFACE_COMPILE_DEFINITIONS "DIRECTX_TEX_IMPORT"
   INTERFACE_COMPILE_FEATURES "cxx_std_11"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "OpenMP::OpenMP_CXX"
+  INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:Microsoft::DirectX-Headers>;\$<LINK_ONLY:Microsoft::DirectXMath>"
 )
 
 # Load information for each installed configuration.

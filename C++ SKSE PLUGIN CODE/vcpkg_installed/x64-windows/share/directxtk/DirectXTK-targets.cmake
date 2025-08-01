@@ -55,13 +55,12 @@ if(_IMPORT_PREFIX STREQUAL "/")
 endif()
 
 # Create imported target Microsoft::DirectXTK
-add_library(Microsoft::DirectXTK SHARED IMPORTED)
+add_library(Microsoft::DirectXTK STATIC IMPORTED)
 
 set_target_properties(Microsoft::DirectXTK PROPERTIES
-  INTERFACE_COMPILE_DEFINITIONS "DIRECTX_TOOLKIT_IMPORT"
   INTERFACE_COMPILE_FEATURES "cxx_std_11"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include/directxtk"
-  INTERFACE_LINK_LIBRARIES "Microsoft::DirectXMath"
+  INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:Microsoft::DirectXMath>"
 )
 
 # Load information for each installed configuration.

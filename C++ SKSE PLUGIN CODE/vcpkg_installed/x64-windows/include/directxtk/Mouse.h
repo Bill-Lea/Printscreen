@@ -10,39 +10,16 @@
 
 #pragma once
 
-#if !defined(USING_XINPUT) && !defined(USING_GAMEINPUT) && !defined(USING_COREWINDOW)
-
-#ifdef _GAMING_DESKTOP
-#include <grdk.h>
-#endif
-
-#if (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_GAMES)) || (defined(_GAMING_DESKTOP) && (_GRDK_EDITION >= 220600))
-#define USING_GAMEINPUT
-#elif (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)) || (defined(_XBOX_ONE) && defined(_TITLE))
+#if (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)) || (defined(_XBOX_ONE) && defined(_TITLE))
+#ifndef USING_COREWINDOW
 #define USING_COREWINDOW
 #endif
-
-#endif // !USING_XINPUT && !USING_GAMEINPUT && !USING_WINDOWS_GAMING_INPUT
-
-#if defined(USING_GAMEINPUT) && !defined(_GAMING_XBOX) && defined(_MSC_VER)
-#pragma comment(lib,"gameinput.lib")
 #endif
 
-#include <cstdint>
 #include <memory>
 
 #ifdef USING_COREWINDOW
 namespace ABI { namespace Windows { namespace UI { namespace Core { struct ICoreWindow; } } } }
-#endif
-
-#ifndef DIRECTX_TOOLKIT_API
-#ifdef DIRECTX_TOOLKIT_EXPORT
-#define DIRECTX_TOOLKIT_API __declspec(dllexport)
-#elif defined(DIRECTX_TOOLKIT_IMPORT)
-#define DIRECTX_TOOLKIT_API __declspec(dllimport)
-#else
-#define DIRECTX_TOOLKIT_API
-#endif
 #endif
 
 #ifdef __clang__
@@ -56,17 +33,17 @@ namespace DirectX
     class Mouse
     {
     public:
-        DIRECTX_TOOLKIT_API Mouse() noexcept(false);
+        Mouse() noexcept(false);
 
-        DIRECTX_TOOLKIT_API Mouse(Mouse&&) noexcept;
-        DIRECTX_TOOLKIT_API Mouse& operator= (Mouse&&) noexcept;
+        Mouse(Mouse&&) noexcept;
+        Mouse& operator= (Mouse&&) noexcept;
 
         Mouse(Mouse const&) = delete;
         Mouse& operator=(Mouse const&) = delete;
 
-        DIRECTX_TOOLKIT_API virtual ~Mouse();
+        virtual ~Mouse();
 
-        enum Mode : uint32_t
+        enum Mode
         {
             MODE_ABSOLUTE = 0,
             MODE_RELATIVE,
@@ -85,10 +62,10 @@ namespace DirectX
             Mode    positionMode;
         };
 
-        class DIRECTX_TOOLKIT_API ButtonStateTracker
+        class ButtonStateTracker
         {
         public:
-            enum ButtonState : uint32_t
+            enum ButtonState
             {
                 UP = 0,         // Button is up
                 HELD = 1,       // Button is held down
@@ -102,14 +79,8 @@ namespace DirectX
             ButtonState xButton1;
             ButtonState xButton2;
 
-        #ifdef _PREFAST_
-        #pragma prefast(push)
-        #pragma prefast(disable : 26495, "Reset() performs the initialization")
-        #endif
+        #pragma prefast(suppress: 26495, "Reset() performs the initialization")
             ButtonStateTracker() noexcept { Reset(); }
-        #ifdef _PREFAST_
-        #pragma prefast(pop)
-        #endif
 
             void __cdecl Update(const State& state) noexcept;
 
@@ -122,35 +93,32 @@ namespace DirectX
         };
 
         // Retrieve the current state of the mouse
-        DIRECTX_TOOLKIT_API State __cdecl GetState() const;
+        State __cdecl GetState() const;
 
         // Resets the accumulated scroll wheel value
-        DIRECTX_TOOLKIT_API void __cdecl ResetScrollWheelValue() noexcept;
+        void __cdecl ResetScrollWheelValue() noexcept;
 
         // Sets mouse mode (defaults to absolute)
-        DIRECTX_TOOLKIT_API void __cdecl SetMode(Mode mode);
-
-        // Signals the end of frame (recommended, but optional)
-        DIRECTX_TOOLKIT_API void __cdecl EndOfInputFrame() noexcept;
+        void __cdecl SetMode(Mode mode);
 
         // Feature detection
-        DIRECTX_TOOLKIT_API bool __cdecl IsConnected() const;
+        bool __cdecl IsConnected() const;
 
         // Cursor visibility
-        DIRECTX_TOOLKIT_API bool __cdecl IsVisible() const noexcept;
-        DIRECTX_TOOLKIT_API void __cdecl SetVisible(bool visible);
+        bool __cdecl IsVisible() const noexcept;
+        void __cdecl SetVisible(bool visible);
 
     #ifdef USING_COREWINDOW
-        DIRECTX_TOOLKIT_API void __cdecl SetWindow(ABI::Windows::UI::Core::ICoreWindow* window);
+        void __cdecl SetWindow(ABI::Windows::UI::Core::ICoreWindow* window);
     #ifdef __cplusplus_winrt
-        DIRECTX_TOOLKIT_API void __cdecl SetWindow(Windows::UI::Core::CoreWindow^ window)
+        void __cdecl SetWindow(Windows::UI::Core::CoreWindow^ window)
         {
             // See https://msdn.microsoft.com/en-us/library/hh755802.aspx
             SetWindow(reinterpret_cast<ABI::Windows::UI::Core::ICoreWindow*>(window));
         }
     #endif
     #ifdef CPPWINRT_VERSION
-        DIRECTX_TOOLKIT_API void __cdecl SetWindow(winrt::Windows::UI::Core::CoreWindow window)
+        void __cdecl SetWindow(winrt::Windows::UI::Core::CoreWindow window)
         {
             // See https://docs.microsoft.com/en-us/windows/uwp/cpp-and-winrt-apis/interop-winrt-abi
             SetWindow(reinterpret_cast<ABI::Windows::UI::Core::ICoreWindow*>(winrt::get_abi(window)));
@@ -159,16 +127,16 @@ namespace DirectX
 
         static void __cdecl SetDpi(float dpi);
     #elif defined(WM_USER)
-        DIRECTX_TOOLKIT_API void __cdecl SetWindow(HWND window);
-        DIRECTX_TOOLKIT_API static void __cdecl ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
+        void __cdecl SetWindow(HWND window);
+        static void __cdecl ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
     #ifdef _GAMING_XBOX
-        DIRECTX_TOOLKIT_API static void __cdecl SetResolution(float scale);
+        static void __cdecl SetResolution(float scale);
     #endif
     #endif
 
         // Singleton
-        DIRECTX_TOOLKIT_API static Mouse& __cdecl Get();
+        static Mouse& __cdecl Get();
 
     private:
         // Private implementation.

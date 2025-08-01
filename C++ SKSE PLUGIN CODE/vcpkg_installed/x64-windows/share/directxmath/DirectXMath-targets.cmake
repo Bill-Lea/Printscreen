@@ -59,7 +59,7 @@ add_library(Microsoft::DirectXMath INTERFACE IMPORTED)
 
 set_target_properties(Microsoft::DirectXMath PROPERTIES
   INTERFACE_COMPILE_FEATURES "cxx_std_11"
-  INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
+  INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include/directxmath"
 )
 
 # Load information for each installed configuration.

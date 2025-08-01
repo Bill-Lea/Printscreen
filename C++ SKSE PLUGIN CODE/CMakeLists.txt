@@ -1,132 +1,167 @@
-cmake_minimum_required(VERSION 3.21)
-# Add this policy setting right after the minimum required version
-cmake_policy(SET CMP0091 NEW)
+cmake_minimum_required(VERSION 3.24)
+project(PrintScreen VERSION 2.0.0 LANGUAGES CXX)
 
-project(PrintScreen VERSION 1.7.0 LANGUAGES CXX)
+# Ensure we're building for x64
+if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message(FATAL_ERROR "This project requires x64 architecture")
+endif()
 
-# Set C++ standard before anything else
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-# ========== Set Build Options ==========
-# Use static runtime libraries across all components
+# Force static linking of runtime libraries
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-# Setup output folder logic
-if(DEFINED ENV{SKYRIM_FOLDER} AND IS_DIRECTORY "$ENV{SKYRIM_FOLDER}/Data")
-    set(OUTPUT_FOLDER "$ENV{SKYRIM_FOLDER}/Data")
+# policies...
+cmake_policy(SET CMP0091 NEW)
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
 endif()
 
-if(DEFINED ENV{SKYRIM_MODS_FOLDER} AND IS_DIRECTORY "$ENV{SKYRIM_MODS_FOLDER}")
-    set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}")
+# C++ standard, build type
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
 endif()
 
-# ========== Find Dependencies ==========
-# Update the library name to match the vcpkg registry
-find_package(CommonLibSSE NAMES CommonLibSSE CommonLibSSE-NG CONFIG REQUIRED)
+# Find packages
+find_package(CommonLibSSE CONFIG REQUIRED)
 find_package(directxtex CONFIG REQUIRED)
 find_package(directxtk CONFIG REQUIRED)
 
-# ========== Create Plugin ==========
-# Modify this to match either approach depending on your CommonLibSSE version
-if(TARGET CommonLibSSE::CommonLibSSE)
-    add_commonlibsse_plugin(${PROJECT_NAME} 
-        SOURCES plugin.cpp
-    )
-else()
-    # Alternative approach if add_commonlibsse_plugin isn't available
-    add_library(${PROJECT_NAME} SHARED plugin.cpp)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${CommonLibSSE_INCLUDE_DIRS})
-endif()
-
-# Use C++20 for better compatibility
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
-
-# MSVC-specific compiler options
-if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE 
-        /EHsc
-        /MP
-        # Use static runtime library
-        $<$<CONFIG:Debug>:/MTd>
-        $<$<NOT:$<CONFIG:Debug>>:/MT>
-    )
-    
-    # Separate link options from compile options
-    target_link_options(${PROJECT_NAME} PRIVATE
-        "/VERBOSE:LIB"  # This will show which libraries being searched
-        # Resolve conflicts for static linking
-        $<$<CONFIG:Debug>:/NODEFAULTLIB:MSVCRT>
-        $<$<NOT:$<CONFIG:Debug>>:/NODEFAULTLIB:MSVCRTD>
-        $<$<CONFIG:Debug>:/NODEFAULTLIB:MSVCPRT>
-        $<$<NOT:$<CONFIG:Debug>>:/NODEFAULTLIB:MSVCPRTD>
-    )
-endif()
-
-# Setup precompiled headers properly - avoid using static flags here
-target_precompile_headers(${PROJECT_NAME} PRIVATE 
-    PCH.h
+# plugin target
+add_library(${PROJECT_NAME} SHARED
+    plugin.cpp
+    Config.cpp
+    ScreenCapture.cpp 
+    PapyrusInterface.cpp
+    printscreen.rc
 )
 
-# Ensure consistent precompiled header runtime library setting
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_PDB_NAME "${PROJECT_NAME}")
+# precompiled headers
+target_precompile_headers(${PROJECT_NAME} PRIVATE PCH.h)
 
-# ========== Link Libraries ==========
-# Use a more flexible approach to linking that works with different CommonLibSSE versions
-# Add static linking preference
-set(BUILD_SHARED_LIBS OFF)
+# includes
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-if(TARGET CommonLibSSE::CommonLibSSE)
-    target_link_libraries(${PROJECT_NAME} PRIVATE 
+# IMPORTANT: Minimal linking to avoid conflicts
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
         CommonLibSSE::CommonLibSSE
         Microsoft::DirectXTex
         Microsoft::DirectXTK
         d3d11
         dxgi
-        windowscodecs
         dxguid
-    )
-else()
-    target_link_libraries(${PROJECT_NAME} PRIVATE 
-        ${CommonLibSSE_LIBRARIES}
-        Microsoft::DirectXTex
-        Microsoft::DirectXTK
-        d3d11
-        dxgi
         windowscodecs
-        dxguid
-    )
-endif()
-
-# ========== Define Preprocessor Macros ==========
-target_compile_definitions(${PROJECT_NAME} PRIVATE 
-    UNICODE 
-    _UNICODE
-    NOMINMAX
-    WIN32_LEAN_AND_MEAN
+        ole32
+        oleaut32
+        uuid
+        propsys
+        comctl32
+        kernel32
+        user32
+        gdi32
+        winspool
+        comdlg32
+        advapi32
+        shell32
+        version
 )
 
-# ========== Output and Deployment ==========
-if(DEFINED OUTPUT_FOLDER)
-    set(DLL_FOLDER "${OUTPUT_FOLDER}/SKSE/Plugins")
-    
-    # VS-friendly message
-    message(STATUS "SKSE plugin will be copied to: ${DLL_FOLDER}")
-
-    add_custom_command(
-        TARGET "${PROJECT_NAME}"
-        POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E make_directory "${DLL_FOLDER}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${PROJECT_NAME}>" "${DLL_FOLDER}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
-        VERBATIM
+# MSVC compiler flags & definitions for CommonLibSSE-NG compatibility
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE 
+        /W3  # Reduced warning level to avoid SKSE header warnings
+        /permissive-
+        /Zc:preprocessor
+        /Zc:__cplusplus
+        /bigobj
+        /EHsc
     )
-
-    # PDB for debug builds
-    add_custom_command(
-        TARGET "${PROJECT_NAME}"
-        POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E $<$<CONFIG:Debug>:copy_if_different> "$<TARGET_PDB_FILE:${PROJECT_NAME}>" "${DLL_FOLDER}/$<TARGET_PDB_FILE_NAME:${PROJECT_NAME}>"
-        VERBATIM
+    
+    # CRITICAL: Minimal definitions to avoid conflicts
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+        _UNICODE 
+        UNICODE 
+        NOMINMAX
+        _CRT_SECURE_NO_WARNINGS
     )
 endif()
+
+# CommonLibSSE-NG specific definitions
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    SKSE_SUPPORT_XBYAK=1
+)
+
+# Auto-deployment to mod folder
+if(DEFINED ENV{SKYRIM_MODS_FOLDER})
+    if(IS_DIRECTORY "$ENV{SKYRIM_MODS_FOLDER}")
+        set(OUTPUT_FOLDER "$ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}")
+        set(DLL_FOLDER "${OUTPUT_FOLDER}/SKSE/Plugins")
+        message(STATUS "Will deploy to: ${DLL_FOLDER}")
+        
+        add_custom_command(
+            TARGET "${PROJECT_NAME}"
+            POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E make_directory "${DLL_FOLDER}"
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${PROJECT_NAME}>" "${DLL_FOLDER}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
+            COMMAND "${CMAKE_COMMAND}" -E echo "Deployed DLL to ${DLL_FOLDER}"
+            VERBATIM
+        )
+        
+        # Copy PDB files for debug builds
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+            add_custom_command(
+                TARGET "${PROJECT_NAME}"
+                POST_BUILD
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_PDB_FILE:${PROJECT_NAME}>" "${DLL_FOLDER}/$<TARGET_PDB_FILE_NAME:${PROJECT_NAME}>"
+                VERBATIM
+            )
+        endif()
+    endif()
+else()
+    # Try common Skyrim installation paths
+    set(POSSIBLE_SKYRIM_PATHS
+        "C:/Program Files (x86)/Steam/steamapps/common/Skyrim Special Edition"
+        "C:/Program Files/Steam/steamapps/common/Skyrim Special Edition"
+        "C:/Games/Steam/steamapps/common/Skyrim Special Edition"
+        "C:/SteamLibrary/steamapps/common/Skyrim Special Edition"
+    )
+    
+    foreach(SKYRIM_PATH ${POSSIBLE_SKYRIM_PATHS})
+        if(IS_DIRECTORY "${SKYRIM_PATH}")
+            set(SKYRIM_DATA_FOLDER "${SKYRIM_PATH}/Data")
+            if(IS_DIRECTORY "${SKYRIM_DATA_FOLDER}")
+                set(DLL_FOLDER "${SKYRIM_DATA_FOLDER}/SKSE/Plugins")
+                message(STATUS "Found Skyrim: ${SKYRIM_PATH}")
+                message(STATUS "Auto-deploying to: ${DLL_FOLDER}")
+                
+                add_custom_command(
+                    TARGET "${PROJECT_NAME}"
+                    POST_BUILD
+                    COMMAND "${CMAKE_COMMAND}" -E make_directory "${DLL_FOLDER}"
+                    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${PROJECT_NAME}>" "${DLL_FOLDER}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
+                    VERBATIM
+                )
+                break()
+            endif()
+        endif()
+    endforeach()
+endif()
+
+# Print configuration info
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
+message(STATUS "CommonLibSSE found: ${CommonLibSSE_FOUND}")
+message(STATUS "DirectXTex found: ${directxtex_FOUND}")
+message(STATUS "DirectXTK found: ${directxtk_FOUND}")
+
+# Add debug information about libraries
+get_target_property(LINKED_LIBS ${PROJECT_NAME} LINK_LIBRARIES)
+message(STATUS "Linked libraries: ${LINKED_LIBS}")
+
+# Add compile definitions debug info
+get_target_property(COMPILE_DEFS ${PROJECT_NAME} COMPILE_DEFINITIONS)
+message(STATUS "Compile definitions: ${COMPILE_DEFS}")

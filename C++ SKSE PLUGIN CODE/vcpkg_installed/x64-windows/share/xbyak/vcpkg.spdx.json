@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/xbyak-x64-windows-7.24.2-5267aa9a-3dd6-452e-a64b-44253f2a3056",
-  "name": "xbyak:x64-windows@7.24.2 d870525c09e487cdb453ca2e98088bda18c5afb4d1ed6c68af09ab48ccc3beb7",
+  "documentNamespace": "https://spdx.org/spdxdocs/xbyak-x64-windows-6.60-cc2fd140-9de4-4359-bdb6-6f96161fbd3f",
+  "name": "xbyak:x64-windows@6.60 aab8949f8bc9f9c4cde512821c6cff04c5b1632e40308254f3a20a938064eb55",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-01-24-874e302b1fa28cc81caefbb1483f80103c51ab52"
+      "Tool: vcpkg-2025-04-01-9c604254140797833b6f76908435c9fcbf09920e"
     ],
-    "created": "2025-05-02T21:35:19Z"
+    "created": "2025-06-18T18:46:19Z"
   },
   "relationships": [
     {
@@ -41,14 +41,19 @@
       "spdxElementId": "SPDXRef-file-1",
       "relationshipType": "CONTAINED_BY",
       "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-1",
+      "relationshipType": "DEPENDENCY_MANIFEST_OF",
+      "relatedSpdxElement": "SPDXRef-port"
     }
   ],
   "packages": [
     {
       "name": "xbyak",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "7.24.2",
-      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@75cb79f6e009287f83abbecf0ac9f71bd9a0010c",
+      "versionInfo": "6.60",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@d4441480fab1434594b5441612ae5158c81a6642",
       "homepage": "https://github.com/herumi/xbyak",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "NOASSERTION",
@@ -59,7 +64,7 @@
     {
       "name": "xbyak:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "d870525c09e487cdb453ca2e98088bda18c5afb4d1ed6c68af09ab48ccc3beb7",
+      "versionInfo": "aab8949f8bc9f9c4cde512821c6cff04c5b1632e40308254f3a20a938064eb55",
       "downloadLocation": "NONE",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "NOASSERTION",
@@ -69,38 +74,38 @@
     {
       "SPDXID": "SPDXRef-resource-0",
       "name": "herumi/xbyak",
-      "downloadLocation": "git+https://github.com/herumi/xbyak@v${VERSION_STR}",
+      "downloadLocation": "git+https://github.com/herumi/xbyak@v6.60",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "d8bcf248b4506f09ee70431f6c38d0d2eb7c3dfa110cbe700e7ae689e0a640f77ec337aeafda93d0f4fd7e9139a8e46dbf1cb99dd4a576667d71b05992a618b8"
+          "checksumValue": "83dba532c7aaa618d61f2d345caeb0ca0b1c3e4946b758095410f269ba954d1870325ed05aa7a1f8aab0b5a2961ecd878980ab835f3db3078a969d2d951aa7e9"
         }
       ]
     }
   ],
   "files": [
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/75cb79f6e009287f83abbecf0ac9f71bd9a0010c/portfile.cmake",
+      "fileName": "./portfile.cmake",
       "SPDXID": "SPDXRef-file-0",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "30a7fb0fd263b4218876c365866049e11211aaa7928b5fa3c6580e182133da31"
+          "checksumValue": "2ae1419d789c43d57f7b899487169a4b6c85a657520dcfd646511fd68c79ebb4"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/75cb79f6e009287f83abbecf0ac9f71bd9a0010c/vcpkg.json",
+      "fileName": "./vcpkg.json",
       "SPDXID": "SPDXRef-file-1",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "5bfd34a493a9dbd1913ec912b2eb5035749459f89bbc5f00a5b4ba54ce66cd0a"
+          "checksumValue": "33bc1ae5f07c0f6eb0e6a479df44b487fcaf6cdc74a8f23237a0abecabba3e1d"
         }
       ],
       "licenseConcluded": "NOASSERTION",

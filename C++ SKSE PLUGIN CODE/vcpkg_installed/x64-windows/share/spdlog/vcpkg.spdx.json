@@ -3,13 +3,13 @@
   "spdxVersion": "SPDX-2.2",
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
-  "documentNamespace": "https://spdx.org/spdxdocs/spdlog-x64-windows-1.15.2-05d5e362-064b-4b0f-9ab9-33abd08f4dd2",
-  "name": "spdlog:x64-windows@1.15.2 28f4daf61242335701b94064a3a2dd4bacc57cd00522fb6b4f5487049ad24fca",
+  "documentNamespace": "https://spdx.org/spdxdocs/spdlog-x64-windows-1.11.0-95acfd5b-0049-424f-99c4-91d337e0bf6d",
+  "name": "spdlog:x64-windows@1.11.0 a260abfdd7c41e1fdc387b978edbf24fecb2153f3e989ade6886e65ebcd2640e",
   "creationInfo": {
     "creators": [
-      "Tool: vcpkg-2025-01-24-874e302b1fa28cc81caefbb1483f80103c51ab52"
+      "Tool: vcpkg-2025-04-01-9c604254140797833b6f76908435c9fcbf09920e"
     ],
-    "created": "2025-05-02T21:35:35Z"
+    "created": "2025-06-18T18:46:36Z"
   },
   "relationships": [
     {
@@ -51,25 +51,30 @@
       "spdxElementId": "SPDXRef-file-2",
       "relationshipType": "CONTAINED_BY",
       "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-2",
+      "relationshipType": "DEPENDENCY_MANIFEST_OF",
+      "relatedSpdxElement": "SPDXRef-port"
     }
   ],
   "packages": [
     {
       "name": "spdlog",
       "SPDXID": "SPDXRef-port",
-      "versionInfo": "1.15.2",
-      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@a79acb592ce2c572c91f6a695fa1e6899d9a1d5f",
+      "versionInfo": "1.11.0",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg.git@296d78e54c14ce64474b66f60847026ddb1f576e",
       "homepage": "https://github.com/gabime/spdlog",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
-      "description": "Very fast, header-only/compiled, C++ logging library.",
+      "description": "Very fast, header only, C++ logging library",
       "comment": "This is the port (recipe) consumed by vcpkg."
     },
     {
       "name": "spdlog:x64-windows",
       "SPDXID": "SPDXRef-binary",
-      "versionInfo": "28f4daf61242335701b94064a3a2dd4bacc57cd00522fb6b4f5487049ad24fca",
+      "versionInfo": "a260abfdd7c41e1fdc387b978edbf24fecb2153f3e989ade6886e65ebcd2640e",
       "downloadLocation": "NONE",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
@@ -79,50 +84,50 @@
     {
       "SPDXID": "SPDXRef-resource-0",
       "name": "gabime/spdlog",
-      "downloadLocation": "git+https://github.com/gabime/spdlog@v1.15.2",
+      "downloadLocation": "git+https://github.com/gabime/spdlog@v1.11.0",
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "checksums": [
         {
           "algorithm": "SHA512",
-          "checksumValue": "4e86d79dea4f08b9e4755ada7c9395e03246d00cdc11df8951d32b5f5e823fec103091d11154f32b261a29574784b761efb32477ec6385ffdb2069413e2c91a0"
+          "checksumValue": "210f3135c7af3ec774ef9a5c77254ce172a44e2fa720bf590e1c9214782bf5c8140ff683403a85b585868bc308286fbdeb1c988e4ed1eb3c75975254ffe75412"
         }
       ]
     }
   ],
   "files": [
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/a79acb592ce2c572c91f6a695fa1e6899d9a1d5f/portfile.cmake",
+      "fileName": "./fmt-header.patch",
       "SPDXID": "SPDXRef-file-0",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "b8a76a606e388cbbbbdd01df202215f51b59363619e3ac8557ec1341d4f9a17e"
+          "checksumValue": "365ece45e9df3bea580c106f7415a5dc13de22365c1671c1a7e5e5afe5461dc0"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/a79acb592ce2c572c91f6a695fa1e6899d9a1d5f/usage",
+      "fileName": "./portfile.cmake",
       "SPDXID": "SPDXRef-file-1",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "bdc67ce7fb7be263e7fdf3c57815f8f9f6142aca5d8f4da5e5597f25a6163bc6"
+          "checksumValue": "9b37fab66aca66c53722e019ee571c5063a5933d555e95f60d48470875dbb61a"
         }
       ],
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION"
     },
     {
-      "fileName": "./C:/Users/willi/AppData/Local/vcpkg/registries/git-trees/a79acb592ce2c572c91f6a695fa1e6899d9a1d5f/vcpkg.json",
+      "fileName": "./vcpkg.json",
       "SPDXID": "SPDXRef-file-2",
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "90928494fa802e02e38f7ec9351cc45797697b185496b6a8f73d1ccea3b1a4ad"
+          "checksumValue": "bdfe8aea499307fe3a026725a74ff78a276d0cf9fc75d6bdf63cbadc30bef1e6"
         }
       ],
       "licenseConcluded": "NOASSERTION",

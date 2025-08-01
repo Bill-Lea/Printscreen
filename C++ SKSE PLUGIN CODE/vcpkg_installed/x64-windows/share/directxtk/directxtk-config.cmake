@@ -29,15 +29,13 @@ include(CMakeFindDependencyMacro)
 
 set(BUILD_XAUDIO_WIN10 OFF)
 set(BUILD_XAUDIO_WIN8 OFF)
-set(BUILD_XAUDIO_WIN7 )
+set(BUILD_XAUDIO_WIN7 OFF)
 if (BUILD_XAUDIO_WIN7 AND (NOT BUILD_XAUDIO_WIN10) AND (NOT BUILD_XAUDIO_WIN8) AND (NOT WINDOWS_STORE))
     find_dependency(xaudio2redist CONFIG)
 endif()
 
-if(MINGW)
-    find_dependency(directxmath)
-else()
-    find_package(directxmath CONFIG QUIET)
+if(MINGW OR VCPKG_TOOLCHAIN)
+    find_dependency(directxmath CONFIG)
 endif()
 
 check_required_components("DirectXTK")

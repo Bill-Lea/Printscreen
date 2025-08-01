@@ -19,28 +19,13 @@
 
 #include <DirectXMath.h>
 
-#ifndef DIRECTX_TOOLKIT_API
-#ifdef DIRECTX_TOOLKIT_EXPORT
-#define DIRECTX_TOOLKIT_API __declspec(dllexport)
-#elif defined(DIRECTX_TOOLKIT_IMPORT)
-#define DIRECTX_TOOLKIT_API __declspec(dllimport)
-#else
-#define DIRECTX_TOOLKIT_API
-#endif
-#endif
-
-#if defined(DIRECTX_TOOLKIT_IMPORT) && defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif
-
 
 namespace DirectX
 {
     inline namespace DX11
     {
     // Vertex struct holding position information.
-        struct DIRECTX_TOOLKIT_API VertexPosition
+        struct VertexPosition
         {
             VertexPosition() = default;
 
@@ -68,7 +53,7 @@ namespace DirectX
 
 
         // Vertex struct holding position and color information.
-        struct DIRECTX_TOOLKIT_API VertexPositionColor
+        struct VertexPositionColor
         {
             VertexPositionColor() = default;
 
@@ -99,7 +84,7 @@ namespace DirectX
 
 
         // Vertex struct holding position and texture mapping information.
-        struct DIRECTX_TOOLKIT_API VertexPositionTexture
+        struct VertexPositionTexture
         {
             VertexPositionTexture() = default;
 
@@ -130,7 +115,7 @@ namespace DirectX
 
 
         // Vertex struct holding position and dual texture mapping information.
-        struct DIRECTX_TOOLKIT_API VertexPositionDualTexture
+        struct VertexPositionDualTexture
         {
             VertexPositionDualTexture() = default;
 
@@ -170,7 +155,7 @@ namespace DirectX
 
 
         // Vertex struct holding position and normal vector.
-        struct DIRECTX_TOOLKIT_API VertexPositionNormal
+        struct VertexPositionNormal
         {
             VertexPositionNormal() = default;
 
@@ -201,7 +186,7 @@ namespace DirectX
 
 
         // Vertex struct holding position, color, and texture mapping information.
-        struct DIRECTX_TOOLKIT_API VertexPositionColorTexture
+        struct VertexPositionColorTexture
         {
             VertexPositionColorTexture() = default;
 
@@ -235,7 +220,7 @@ namespace DirectX
 
 
         // Vertex struct holding position, normal vector, and color information.
-        struct DIRECTX_TOOLKIT_API VertexPositionNormalColor
+        struct VertexPositionNormalColor
         {
             VertexPositionNormalColor() = default;
 
@@ -269,7 +254,7 @@ namespace DirectX
 
 
         // Vertex struct holding position, normal vector, and texture mapping information.
-        struct DIRECTX_TOOLKIT_API VertexPositionNormalTexture
+        struct VertexPositionNormalTexture
         {
             VertexPositionNormalTexture() = default;
 
@@ -303,7 +288,7 @@ namespace DirectX
 
 
         // Vertex struct holding position, normal vector, color, and texture mapping information.
-        struct DIRECTX_TOOLKIT_API VertexPositionNormalColorTexture
+        struct VertexPositionNormalColorTexture
         {
             VertexPositionNormalColorTexture() = default;
 
@@ -345,7 +330,7 @@ namespace DirectX
 
         // Vertex struct for Visual Studio Shader Designer (DGSL) holding position, normal,
         // tangent, color (RGBA), and texture mapping information
-        struct DIRECTX_TOOLKIT_API VertexPositionNormalTangentColorTexture
+        struct VertexPositionNormalTangentColorTexture
         {
             VertexPositionNormalTangentColorTexture() = default;
 
@@ -430,7 +415,7 @@ namespace DirectX
 
         // Vertex struct for Visual Studio Shader Designer (DGSL) holding position, normal,
         // tangent, color (RGBA), texture mapping information, and skinning weights
-        struct DIRECTX_TOOLKIT_API VertexPositionNormalTangentColorTextureSkinning : public VertexPositionNormalTangentColorTexture
+        struct VertexPositionNormalTangentColorTextureSkinning : public VertexPositionNormalTangentColorTexture
         {
             VertexPositionNormalTangentColorTextureSkinning() = default;
 
@@ -517,7 +502,3 @@ namespace DirectX
         };
     }
 }
-
-#if defined(DIRECTX_TOOLKIT_IMPORT) && defined(_MSC_VER)
-#pragma warning(pop)
-#endif
