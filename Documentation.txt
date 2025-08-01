@@ -1,0 +1,556 @@
+# PrintScreen SKSE Plugin Documentation
+## Version 2.0.0
+
+A comprehensive SKSE plugin for Skyrim Special Edition that provides advanced screenshot functionality with multiple image formats, animated GIFs, and real-time configuration management.
+
+---
+
+## Table of Contents
+1. [Overview](#overview)
+2. [Installation & Requirements](#installation--requirements)
+3. [User Guide](#user-guide)
+4. [Technical Architecture](#technical-architecture)
+5. [C++ Implementation Details](#c-implementation-details)
+6. [Papyrus Scripting Interface](#papyrus-scripting-interface)
+7. [Configuration System](#configuration-system)
+8. [Troubleshooting](#troubleshooting)
+9. [Developer Reference](#developer-reference)
+
+---
+
+## Overview
+
+The PrintScreen plugin provides professional-grade screenshot capabilities for Skyrim SE, featuring:
+
+### Key Features
+- **Multiple Image Formats**: PNG, JPEG, BMP, TIFF, DDS, GIF, and animated GIF
+- **Advanced Compression**: Format-specific compression options (DDS BC1-BC7, TIFF LZW/ZIP, JPEG quality)
+- **Animated GIF Support**: Multi-frame capture with configurable duration
+- **Real-time Configuration**: Hot-reload configuration without game restart
+- **Thread-safe Operation**: Asynchronous capture with cancellation support
+- **HUD Management**: Automatic menu/HUD hiding during capture
+- **Path Validation**: Comprehensive file system access verification
+
+---
+
+## Installation & Requirements
+
+### Prerequisites
+- **Skyrim Special Edition** (version 1.5.39 or later)
+- **SKSE64** (Skyrim Script Extender)
+- **ConsoleUtil** (for HUD control)
+- **PapyrusUtil** (for JSON configuration)
+- **JContainers** (for data management)
+- **SkyUI** (for MCM interface)
+
+### Installation Steps
+1. Install all prerequisite mods through your mod manager
+2. Extract the plugin DLL to `Data/SKSE/Plugins/`
+3. Extract scripts to `Data/Scripts/`
+4. Extract the ESP file to `Data/`
+5. Enable the plugin in your mod manager
+6. Start the game and configure through MCM
+
+---
+
+## User Guide
+
+### Basic Usage
+
+#### Taking Screenshots
+1. **Default Key**: Backspace (configurable in MCM)
+2. **Cancel Operation**: Press the same key while capture is running
+3. **Status**: Notifications appear in the top-left corner
+
+#### Configuration via MCM
+Navigate to **MCM → PrintScreen** to configure:
+
+- **Path**: Output directory for screenshots
+- **Image Type**: Choose from PNG, JPEG, BMP, TIFF, DDS, GIF, or GIF_MULTIFRAME
+- **Quality Settings**: JPEG compression (0-100%), DDS compression modes
+- **Capture Settings**: GIF duration, automatic HUD removal
+- **Key Binding**: Customize the screenshot key
+
+### Image Format Guide
+
+#### PNG (Default)
+- **Use Case**: High quality, lossless compression
+- **File Size**: Medium to large
+- **Compatibility**: Universal support
+
+#### JPEG
+- **Use Case**: Smaller file sizes, good for sharing
+- **Quality**: Configurable 0-100% (85% recommended)
+- **File Size**: Small to medium
+
+#### DDS (Advanced)
+- **Use Case**: Game-ready textures, professional workflows
+- **Compression Modes**:
+  - `BC1`: Best for simple textures (4:1 compression)
+  - `BC3`: Good for textures with alpha (8:1 compression)  
+  - `BC7_FAST/NORMAL/SLOW`: Highest quality (processing time varies)
+- **File Size**: Very small
+- **Note**: BC6H, BC7 modes take several minutes to process
+
+#### Animated GIF
+- **Use Case**: Short gameplay clips, demonstrations
+- **Duration**: 1-30 seconds (configurable)
+- **Frame Rate**: 10 FPS
+- **File Size**: Large (duration-dependent)
+
+### Advanced Features
+
+#### Path Validation
+The plugin automatically validates output paths:
+- Creates directories if they don't exist
+- Tests read/write permissions
+- Provides clear error messages for invalid paths
+
+#### Thread Safety & Cancellation
+- Screenshots run in background threads
+- Press the screenshot key again to cancel running operations
+- Safe to alt-tab or change scenes during capture
+
+---
+
+## Technical Architecture
+
+### Core Components
+
+```
+PrintScreen Plugin
+├── Configuration System (Config.h/cpp)
+├── Logging Framework (logger.h)
+├── Screen Capture Engine (ScreenCapture.h/cpp)
+├── Papyrus Interface (PapyrusInterface.h/cpp)
+├── Main Plugin (plugin.cpp)
+└── Papyrus Scripts (*.psc)
+```
+
+### Data Flow
+1. **User Input** → Papyrus script key handler
+2. **Validation** → Path checking, state verification
+3. **Native Call** → C++ capture function via Papyrus interface
+4. **Async Capture** → DirectX screen duplication + DirectXTex processing
+5. **File Output** → Format-specific encoding and compression
+6. **Completion** → Callback to Papyrus for UI updates
+
+---
+
+## C++ Implementation Details
+
+### Core Classes
+
+#### `Config::Settings`
+Manages configuration with hot-reload capability:
+```cpp
+class Settings {
+    // Auto-reload configuration when file changes
+    void CheckAndReload() const;
+    
+    // Thread-safe getters with reload check
+    int GetLogLevel() const;
+    bool IsConsoleOutputEnabled() const;
+    
+    // Manual reload
+    bool Reload();
+};
+```
+
+#### `ScreenCapture` Namespace
+Handles all image capture operations:
+```cpp
+namespace ScreenCapture {
+    // Main capture functions
+    CaptureResult CaptureScreen(const CaptureParams& params);
+    CaptureResult CaptureGIF(const CaptureParams& params);
+    
+    // DirectX setup
+    HRESULT SetupDesktopDuplication(/* params */);
+    
+    // Format-specific encoding
+    HRESULT SaveToWIC(const DirectX::ScratchImage& image, /* params */);
+    HRESULT SaveToDDS(const DirectX::ScratchImage& image, /* params */);
+}
+```
+
+#### `Logger` Class
+Thread-safe logging with multiple outputs:
+```cpp
+class Logger {
+    // Format string logging
+    template<typename... Args>
+    static void Info(const std::string& format, const Args&... args);
+    
+    // Conditional logging
+    static void Progress(const std::string& message);  // If enabled
+    static void Timing(const std::string& message);    // If enabled
+};
+```
+
+### Threading Architecture
+
+#### State Management
+```cpp
+// Global atomic state variables (thread-safe)
+std::atomic<bool> g_isStarting(false);
+std::atomic<bool> g_isRunning(false);
+std::atomic<bool> g_cancelFlag(false);
+std::atomic<bool> g_resultReady(false);
+std::atomic<bool> g_operationInProgress(false);  // Race condition prevention
+
+// Protected result storage
+std::mutex g_resultMutex;
+std::string g_result("Ready");
+```
+
+#### Worker Thread Pattern
+```cpp
+void CaptureWorkerThread(/* params */) {
+    // Transition state: starting → running
+    g_isStarting.store(false);
+    g_isRunning.store(true);
+    
+    try {
+        // Perform capture with cancellation checks
+        std::string result = PerformCapture(params);
+        
+        // Set completion state
+        g_isRunning.store(false);
+        g_resultReady.store(true);
+        
+        {
+            std::lock_guard<std::mutex> lock(g_resultMutex);
+            g_result = "CALLBACK_" + result;
+        }
+    } catch (...) {
+        // Error handling
+    }
+}
+```
+
+### DirectX Integration
+
+#### Desktop Duplication API
+```cpp
+HRESULT SetupDesktopDuplication(
+    Microsoft::WRL::ComPtr<ID3D11Device>& device,
+    Microsoft::WRL::ComPtr<IDXGIOutputDuplication>& duplication) {
+    
+    // Create D3D11 device
+    D3D11CreateDevice(/* params */);
+    
+    // Get DXGI interfaces
+    device.As(&dxgiDevice);
+    dxgiDevice->GetAdapter(&adapter);
+    adapter->EnumOutputs(0, &output);
+    
+    // Create duplication interface
+    output1->DuplicateOutput(device.Get(), &duplication);
+}
+```
+
+#### DirectXTex Processing
+```cpp
+// Image compression with threading
+DirectX::Compress(
+    sourceImage,
+    compressionFormat,
+    DirectX::TEX_COMPRESS_PARALLEL,  // Multi-threaded
+    DirectX::TEX_THRESHOLD_DEFAULT,
+    compressedImage
+);
+```
+
+---
+
+## Papyrus Scripting Interface
+
+### Native Function Declarations
+```papyrus
+; Path validation
+bool Function CheckPath(String path) Global Native
+
+; Asynchronous capture
+String Function TakePhoto(String basePath, String imageType, 
+                         float jpgCompression, String Mode, 
+                         float GIF_MultiFrame_Duration) Global Native
+
+; Status polling
+String Function Get_Result() Global Native
+
+; Operation control
+String Function Cancel() Global Native
+String Function ForceReset() Global Native
+String Function ResetState() Global Native
+```
+
+### Return Value Reference
+
+#### TakePhoto() Returns:
+- `"Started"` - Capture initiated successfully
+- `"Already running"` - Operation already in progress
+- `"Invalid path"` - Path validation failed
+- `"Thread start failed"` - Internal error
+
+#### Get_Result() Returns:
+- `"Ready"` - Idle, ready for new capture
+- `"Starting"` - Initializing capture
+- `"Running"` - Capture in progress
+- `"CALLBACK_SUCCESS"` - Capture completed successfully
+- `"CALLBACK_CANCELLED"` - User cancelled operation
+- `"CALLBACK_ERROR: message"` - Error occurred
+
+### Script Architecture
+
+#### Main Quest Script (`Printscreen_MainQuest_script`)
+Handles user interaction and state management:
+```papyrus
+Event OnKeyUp(int theKey, float holdtime)
+    ; Cancel check - if already running, cancel instead
+    if (IsStartingCapture || IsLatentScreenshotActive)
+        Cancel()
+        return
+    endif
+    
+    ; Debounce rapid key presses
+    float currentTime = Utility.GetCurrentRealTime()
+    if (currentTime - LastKeyPressTime < 0.75)
+        return
+    endif
+    
+    ; Start new capture
+    IsStartingCapture = true
+    CaptureImage(Path, ImageType, JPG_Compression, Mode, GIF_MultiFrame_Duration)
+EndEvent
+```
+
+#### Polling System
+```papyrus
+Event OnPrintScreenPoll(string eventName, ...)
+    Result = Printscreen_Formula_Script.Get_Result()
+    
+    if (StringUtil.Find(Result, "CALLBACK_") == 0)
+        ; Handle completion
+        OnScreenshotCompleted(ParseResult(Result))
+    elseif (Result == "Running" || Result == "Starting")
+        ; Continue polling
+        Utility.Wait(0.2)
+        SendModEvent("PrintScreenPoll")
+    endif
+EndEvent
+```
+
+### Race Condition Prevention
+
+The plugin uses multiple layers of protection against race conditions:
+
+1. **Atomic Flags**: Thread-safe state variables
+2. **Compare-and-Swap**: Atomic check-and-set operations
+3. **Mutex Protection**: Critical section guards
+4. **Debouncing**: Time-based duplicate prevention
+
+```papyrus
+; BULLETPROOF: Prevents double-calls with atomic check-and-set
+bool expected = false
+if (!g_operationInProgress.compare_exchange_strong(expected, true)) {
+    return "Already running";
+}
+```
+
+---
+
+## Configuration System
+
+### Configuration File Format
+Location: `%USERPROFILE%/Documents/My Games/Skyrim Special Edition/SKSE/Plugins/Printscreen_Log.ini`
+
+```ini
+[Logging]
+LogLevel=3          ; 1=Error, 2=Warn, 3=Info, 4=Debug, 5=Trace
+ConsoleOutput=1     ; 0=Disabled, 1=Enabled
+FileOutput=1        ; 0=Disabled, 1=Enabled
+ShowTimestamps=1    ; 0=No timestamps, 1=Show timestamps
+
+[Capture]
+LogCaptureProgress=1    ; 0=Disabled, 1=Enabled
+LogTimingInfo=0         ; 0=Disabled, 1=Enabled (performance metrics)
+```
+
+### Hot-Reload System
+Configuration changes are detected automatically:
+- File timestamp monitoring
+- Thread-safe reload during getter calls
+- No game restart required
+
+### Debug Logging
+Detailed debug logs for troubleshooting:
+- Location: `%USERPROFILE%/Documents/My Games/Skyrim Special Edition/SKSE/Plugins/config_debug.log`
+- Includes: Configuration parsing, validation steps, error details
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+#### "Path validation failed"
+**Cause**: Invalid output directory or insufficient permissions  
+**Solution**: 
+1. Ensure the path exists and is writable
+2. Use absolute paths (e.g., `C:\Pictures`)
+3. Avoid special characters in path names
+4. Check Windows permissions
+
+#### "Already running" errors
+**Cause**: State synchronization issues  
+**Solution**:
+1. Wait for current operation to complete
+2. Use `ForceReset()` if stuck
+3. Check for very long DDS compression operations
+
+#### "Thread start failed"
+**Cause**: System resource limitations  
+**Solution**:
+1. Close other applications to free memory
+2. Restart Skyrim
+3. Check system specifications
+
+#### GIF captures fail or are corrupted
+**Cause**: DirectX or WIC codec issues  
+**Solution**:
+1. Update graphics drivers
+2. Install Windows Media Feature Pack
+3. Reduce GIF duration
+4. Try other image formats first
+
+### Debug Information
+
+#### Enabling Debug Logging
+Set `LogLevel=5` in configuration file for maximum verbosity.
+
+#### Log File Locations
+- **Main Log**: `%USERPROFILE%/Documents/My Games/Skyrim Special Edition/SKSE/printscreen.log`
+- **Config Debug**: `%USERPROFILE%/Documents/My Games/Skyrim Special Edition/SKSE/Plugins/config_debug.log`
+
+#### Performance Monitoring
+Enable `LogTimingInfo=1` to track:
+- Capture duration
+- Compression times
+- File I/O performance
+
+---
+
+## Developer Reference
+
+### Building the Plugin
+
+#### Required Dependencies
+- **SKSE64 SDK** (latest version)
+- **DirectXTex** library
+- **Visual Studio 2019/2022** with C++17 support
+- **Windows 10 SDK**
+
+#### Build Configuration
+```cpp
+// Key compiler settings
+std::standard = c++17
+_WIN32_WINNT = 0x0A00  // Windows 10
+SKSE_RUNTIME_SUPPORT = all
+```
+
+#### Static Member Definitions
+**Critical**: Logger static members must be defined exactly once:
+```cpp
+// In plugin.cpp ONLY
+namespace logger {
+    std::mutex Logger::s_logMutex;
+    std::string Logger::s_logFilePath;
+    bool Logger::s_initialized = false;
+}
+```
+
+### Extension Points
+
+#### Adding New Image Formats
+1. Extend `ImageFormat` enum in `ScreenCapture.h`
+2. Update `StringToImageFormat()` function
+3. Add format-specific save logic in capture functions
+4. Update Papyrus interface validation
+
+#### Custom Compression Modes
+1. Define new compression enums
+2. Implement in format-specific save functions
+3. Add UI options in MCM script
+4. Update configuration parsing
+
+#### Advanced Capture Features
+The architecture supports extending with:
+- Multi-monitor capture
+- Specific window capture  
+- Custom post-processing filters
+- Batch capture operations
+
+### API Integration
+
+#### External Plugin Integration
+Other SKSE plugins can integrate via:
+```cpp
+// Check if PrintScreen is loaded
+if (GetModuleHandle(L"PrintScreen.dll")) {
+    // Use messaging interface
+    SKSE::GetMessagingInterface()->RegisterListener(callback);
+}
+```
+
+#### Papyrus Extensions
+Additional script functions can be registered:
+```cpp
+bool RegisterCustomFunctions(RE::BSScript::IVirtualMachine* vm) {
+    vm->RegisterFunction("CustomFunction", scriptName, CustomFunction);
+    return true;
+}
+```
+
+---
+
+## Version History
+
+### Version 2.0.0
+- Complete rewrite with thread-safe architecture
+- Added animated GIF support
+- Implemented hot-reload configuration
+- Enhanced error handling and logging
+- Added comprehensive cancellation support
+- Improved DDS compression with BC7 support
+- Race condition prevention
+- Real-time path validation
+
+### Future Roadmap
+- HDR capture support
+- Video recording capabilities
+- Custom watermarking
+- Batch processing tools
+- Cloud upload integration
+
+---
+
+## License & Credits
+
+**Author**: William G Lea  
+**Version**: 2.0.0  
+**License**: [Your License Here]
+
+### Dependencies
+- **SKSE64**: Skyrim Script Extender team
+- **DirectXTex**: Microsoft DirectX team
+- **CommonLibSSE**: Third-party SKSE wrapper
+
+### Special Thanks
+- SKSE development team
+- Skyrim modding community
+- DirectX and Windows imaging teams
+
+---
+
+*This documentation covers both user-facing features and developer implementation details. For additional support, check the debug logs and community forums.*
