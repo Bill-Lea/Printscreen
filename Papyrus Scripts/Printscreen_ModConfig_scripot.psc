@@ -379,7 +379,7 @@ event OnConfigClose()
   ;PrintScreenKey while the MCM is open
   MainQuest.bConfigOpen = false 
   RegisterforKey(MainQuest.Key_TakePhoto )
-if(MainQuest.UseJsonFile)
+  if(MainQuest.UseJsonFile)
   JsonUtil.SetFloatValue(MainQuest.jsonFilename,MainQuest.Keyname_JPG_Compression, MainQuest.Jpg_Compression)
   JsonUtil.SetStringValue(MainQuest.jsonFilename, MainQuest.Keyname_ImageType, MainQuest.ImageType)
   JsonUtil.SetStringValue(MainQuest.jsonFilename, MainQuest.KeyName_Path, MainQuest.Path)

@@ -17,7 +17,6 @@ String Property Result auto
 Bool Property Menu = true auto 
 bool Property HUD_Visable = true Auto
 int Property Shots auto
-
 String Property Version ="2.0.0" auto 
 bool   Property Read_Write_Configead_Write_Config auto
 String Property JsonFileName auto
@@ -324,7 +323,7 @@ Event onInit()
     DDS_Mode = "UNCOMPRESSED"
     Result = ""
     bResult = false
-
+    Hud_Visable = true
     IsLatentScreenshotActive = false
     IsStartingCapture = false
     LastKeyPressTime = 0.0  ; ADDED: Initialize debounce timer

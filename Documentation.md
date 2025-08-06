@@ -5,6 +5,50 @@ A comprehensive SKSE plugin for Skyrim Special Edition that provides advanced sc
 
 ---
 
+## Version History
+
+### Version 2.0.0
+- Complete rewrite with thread-safe architecture
+- Added animated GIF support
+- Implemented hot-reload configuration
+- Enhanced error handling and logging
+- Added comprehensive cancellation support
+- Improved DDS compression with BC7 support
+- Race condition prevention
+- Real-time path validation
+
+### Future Roadmap
+- Event mode operation
+= Animated PNG creation
+- Improved HUD/Menu Cintrol
+
+---
+
+## License & Credits
+
+**Author**: William G Lea  
+**Version**: 2.0.0  
+**License**: MIT
+
+### Dependencies
+- **SKSE64**: Skyrim Script Extender team
+- **DirectXTex**: Microsoft DirectX team
+- **CommonLibSSE**: Third-party SKSE wrapper
+-** Jcontainer SE
+-** PapyrusUtils
+=** SKIUTIL 
+
+### Special Thanks
+- SKSE development team
+- Skyrim modding community
+	In particular : Mrowr Purr and DarkFok127
+Who's video libraries provided vital basic information
+- DirectX and Windows imaging teams
+
+---
+
+*This documentation covers both user-facing features and developer implementation details.
+
 ## Table of Contents
 1. [Overview](#overview)
 2. [Installation & Requirements](#installation--requirements)
@@ -446,7 +490,7 @@ Enable `LogTimingInfo=1` to track:
 ### Building the Plugin
 
 #### Required Dependencies
-- **SKSE64 SDK** (latest version)
+- **SKSE64 ** (latest version)
 - **DirectXTex** library
 - **Visual Studio 2019/2022** with C++17 support
 - **Windows 10 SDK**
@@ -510,47 +554,3 @@ bool RegisterCustomFunctions(RE::BSScript::IVirtualMachine* vm) {
     vm->RegisterFunction("CustomFunction", scriptName, CustomFunction);
     return true;
 }
-```
-
----
-
-## Version History
-
-### Version 2.0.0
-- Complete rewrite with thread-safe architecture
-- Added animated GIF support
-- Implemented hot-reload configuration
-- Enhanced error handling and logging
-- Added comprehensive cancellation support
-- Improved DDS compression with BC7 support
-- Race condition prevention
-- Real-time path validation
-
-### Future Roadmap
-- HDR capture support
-- Video recording capabilities
-- Custom watermarking
-- Batch processing tools
-- Cloud upload integration
-
----
-
-## License & Credits
-
-**Author**: William G Lea  
-**Version**: 2.0.0  
-**License**: [Your License Here]
-
-### Dependencies
-- **SKSE64**: Skyrim Script Extender team
-- **DirectXTex**: Microsoft DirectX team
-- **CommonLibSSE**: Third-party SKSE wrapper
-
-### Special Thanks
-- SKSE development team
-- Skyrim modding community
-- DirectX and Windows imaging teams
-
----
-
-*This documentation covers both user-facing features and developer implementation details. For additional support, check the debug logs and community forums.*
