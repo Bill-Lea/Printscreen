@@ -1,0 +1,165 @@
+📸 Printscreen V3
+Advanced Screenshot & Animated Capture for Skyrim (SKSE)
+
+Take high-quality screenshots and animated captures directly from Skyrim using a native SKSE plugin powered by Windows Desktop Duplication.
+
+Supports PNG, JPG, DDS (BC1–BC7), TIFF, BMP, GIF, AGIF, and APNG.
+
+✨ Features
+
+📷 High-quality screenshots using Windows Desktop Duplication
+
+🎞 Animated capture (GIF / AGIF / APNG)
+
+🧩 Full MCM configuration (SkyUI)
+
+🎛 Adjustable compression and encoding modes
+
+🗂 Custom output folder
+
+🖥 Optional automatic UI/HUD hiding (experimental)
+
+⏹ Cancel capture mid-recording
+
+💾 JSON configuration save/restore
+
+🧵 Designed to avoid hooking the game’s render pipeline
+
+📦 Requirements
+
+SKSE (matching your game version)
+
+SkyUI (for MCM)
+
+ConsoleUtil (for optional UI toggle)
+
+PapyrusUtil / JsonUtil (for config save)
+
+JContainers (for key name mapping display)
+
+📂 Installation
+
+Install like any SKSE mod:
+
+Install with MO2 / Vortex.
+
+Ensure the SKSE plugin DLL is in:
+
+Data/SKSE/Plugins/
+
+
+Launch the game through SKSE.
+
+Open MCM → Printscreen to configure.
+
+🚀 Quick Start
+
+Open MCM → Printscreen
+
+Set your screenshot folder (default: C:/Pictures)
+
+Choose image type (PNG recommended)
+
+Set your hotkey
+
+Press the hotkey in-game
+
+Press the hotkey again while recording to cancel.
+
+🖼 Supported Formats
+Format	Notes
+PNG	Lossless, recommended default
+JPG	Adjustable compression
+BMP	Uncompressed
+TIF	Multiple compression modes
+DDS	BC1–BC7 GPU compression modes
+GIF	Animated
+AGIF	Optimized animated GIF
+APNG	Animated PNG
+🎞 Animated Capture Options
+
+Available for  AGIF / APNG:
+
+Capture Duration (seconds)
+
+FPS
+
+Loop Count
+
+Compression Level
+
+Optimization Mode
+
+🖥 Automatic UI Hide (Experimental)
+
+When enabled, the mod toggles the Skyrim HUD off using:
+
+tm
+
+
+Because this is a toggle, edge cases may desync if you manually toggle UI during capture.
+
+If that happens, simply toggle it back on manually. Wheb the capture completes the UI will be toggled again anf yhou will have to toggle it a second time to keep the code in sync. If this a problem, don't use the utomatic UI function. 
+
+⏹ Canceling a Capture
+
+If a capture is currently running:
+
+Press the screenshot key again to cancel. DDS compression may not be effective. AGIF and APNG check for cancellation during image collection and encoding and may be canceled if desired. Other single frame images run too quickly to readily be canceled. 
+
+🛠 Troubleshooting
+Nothing happens when pressing the key
+
+Confirm hotkey is set
+
+Make sure MCM and other menues are closed
+
+Ensure SKSE plugin is loaded and activated.
+
+Capture times out
+
+Very long or high-FPS animated captures may take time
+
+The system will auto-cancel after a safety timeout
+
+UI stays hidden
+
+Toggle tm manually in console
+
+Invalid folder path
+
+Make sure the path is absolute with no illegal characters and is writable.
+
+⚙ How It Works (Short Version)
+
+Unlike most screenshot mods, Printscreen V3 does not hook into Skyrim’s rendering pipeline.
+
+It captures frames using Windows Desktop Duplication, then encodes them using native image libraries.
+
+This makes it largely independent of Skyrim version differences handled by SKSE.
+
+📌 Known Limitations
+
+UI toggle uses console command and may desync
+
+Animated capture at high resolution + high FPS may take time to encode and generate huge files. The program uses differential compression but it is not as effective as I would like. Encoded files can exceed 1 gigabyte. APNG can only be displayed in a browser or other third party software.
+
+Requires SKSE plugin properly installed
+
+🔄 Version
+
+Current Papyrus Version: 3.01
+
+(See file version in DLL properties for build info.)
+
+❤️ Credits
+
+SKSE team
+
+SkyUI team
+
+ConsoleUtil
+
+PapyrusUtil
+
+JContainers

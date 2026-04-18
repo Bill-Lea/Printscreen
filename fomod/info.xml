@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fomod>
+  <Name>PrintscreenV3</Name>
+  <Author>William Lea</Author>
+  <Version>1.0.0</Version>
+  <Website>https://www.nexusmods.com/</Website>
+  <Description>
+    Advanced screenshot capture plugin for Skyrim using SKSE and Desktop Duplication.
+  </Description>
+</fomod>

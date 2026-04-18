@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd">
+
+  <moduleName>PrintscreenV3 Advanced Installer</moduleName>
+
+  <installSteps>
+
+    <installStep name="Welcome">
+      <optionalFileGroups>
+        <group name="Introduction" type="SelectExactlyOne">
+          <plugins>
+            <plugin name="Continue">
+              <description>
+                Installs PrintscreenV3. Choose build type and optional extras on the next pages.
+              </description>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+
+    <installStep name="Build Type">
+      <optionalFileGroups>
+        <group name="Choose Build" type="SelectExactlyOne">
+          <plugins>
+
+            <plugin name="Release Build">
+              <description>Recommended. Normal end-user build.</description>
+              <files>
+                <file source="Core\Release\SKSE\Plugins\PrintscreenV3.dll" destination="SKSE\Plugins\" priority="0" />
+                <file source="Core\Release\Data\Scripts\PrintscreenV3.pex" destination="Data\Scripts\" priority="0" />
+              </files>
+            </plugin>
+
+            <plugin name="Debug Build">
+              <description>For testing only. Use only if you intentionally packaged a debug DLL.</description>
+              <files>
+                <file source="Core\Debug\SKSE\Plugins\PrintscreenV3.dll" destination="SKSE\Plugins\" priority="10" />
+                <file source="Core\Debug\Data\Scripts\PrintscreenV3.pex" destination="Data\Scripts\" priority="10" />
+              </files>
+            </plugin>
+
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+
+    <installStep name="Game Variant">
+      <optionalFileGroups>
+        <group name="Choose Variant" type="SelectExactlyOne">
+          <plugins>
+
+            <plugin name="Anniversary Edition / Current Runtime">
+              <description>
+                Use this if you built the included DLL for current Skyrim AE runtime.
+              </description>
+            </plugin>
+
+            <plugin name="Special Edition / Older Runtime">
+              <description>
+                Use this only if your package contains files intended for an older SE runtime.
+                If both variants currently use the same files, this is informational only.
+              </description>
+            </plugin>
+
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+
+    <installStep name="Optional Components">
+      <optionalFileGroups>
+
+        <group name="Papyrus Source" type="SelectAny">
+          <plugins>
+            <plugin name="Install Papyrus Source">
+              <description>Installs .psc source files for users and mod authors.</description>
+              <files>
+                <file source="Optional\Source\Data\Scripts\Source\PrintscreenV3.psc"
+                      destination="Data\Scripts\Source\" />
+              </files>
+            </plugin>
+          </plugins>
+        </group>
+
+        <group name="Documentation" type="SelectAny">
+          <plugins>
+            <plugin name="Install Readme and Changelog">
+              <description>Installs documentation files.</description>
+              <files>
+                <file source="Optional\Docs\Readme.txt" destination="" />
+                <file source="Optional\Docs\Changelog.txt" destination="" />
+              </files>
+            </plugin>
+          </plugins>
+        </group>
+
+      </optionalFileGroups>
+    </installStep>
+
+    <installStep name="Installation Summary">
+      <optionalFileGroups>
+        <group name="Ready" type="SelectExactlyOne">
+          <plugins>
+            <plugin name="Install Selected Options">
+              <description>
+                PrintscreenV3 will now be installed with the options you selected.
+              </description>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+
+  </installSteps>
+
+  <conditionalFileInstalls>
+    <patterns>
+
+      <pattern>
+        <dependencies>
+          <fileDependency file="SKSE\Plugins\PrintscreenV3.dll" state="Missing" />
+        </dependencies>
+        <files />
+      </pattern>
+
+    </patterns>
+  </conditionalFileInstalls>
+
+</config>

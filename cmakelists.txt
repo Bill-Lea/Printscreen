@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.24)
+project(Printscreen VERSION 3.0.0 LANGUAGES CXX)
+add_subdirectory(src)
+# Ensure the src folder is on the include path (if not already)
+target_include_directories(${PLUGIN_TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+# Use the local PCH wrapper if present
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/pch.h")
+  target_precompile_headers(${PLUGIN_TARGET} PRIVATE "src/pch.h")
+endif()

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmake --build:*)",
+      "Bash(wc -l src/*.cpp src/*.h src/**/*.cpp src/**/*.h)"
+    ]
+  }
+}

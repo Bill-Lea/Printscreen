@@ -1,0 +1,818 @@
+[size=6][b]PrintScreen V3 - Technical Documentation[/b][/size]
+
+[b]Version:[/b] 3.0.0
+[b]Author:[/b] William G Lea
+[b]Platform:[/b] Windows x64
+[b]Language:[/b] C++20 (MSVC)
+
+[line]
+[size=5][b]Table of Contents[/b][/size]
+
+[list=1]
+[*][url=#overview]Overview[/url]
+[*][url=#architecture]Architecture[/url]
+[*][url=#project-structure]Project Structure[/url]
+[*][url=#build-system]Build System[/url]
+[*][url=#dependencies]Dependencies[/url]
+[*][url=#core-components]Core Components[/url]
+[*][url=#api-reference]API Reference[/url]
+[*][url=#configuration]Configuration[/url]
+[*][url=#data-flow]Data Flow[/url]
+[*][url=#memory-management]Memory Management[/url]
+[*][url=#supported-formats]Supported Formats[/url]
+[*][url=#runtime-compatibility]Runtime Compatibility[/url]
+[*][url=#build-instructions]Build Instructions[/url]
+[/list]
+[line]
+[size=5][b]Overview[/b][/size]
+
+PrintScreen V3 is a professional-grade SKSE (Skyrim Script Extender) plugin for Skyrim Special Edition that provides advanced screenshot and animated image capture capabilities. The plugin captures frames using the Windows Desktop Duplication API, avoiding direct hooks into the game's render pipeline for maximum compatibility.
+
+[size=4][b]Key Features[/b][/size]
+
+[list]
+[*]Multi-format image capture (PNG, JPG, BMP, TIF, DDS, GIF, APNG)
+[*]Animated GIF/APNG recording with differential encoding
+[*]GPU-accelerated DDS compression (BC1-BC7)
+[*]Custom memory pool for efficient frame buffering
+[*]Cooperative cancellation support
+[*]Configurable logging with rotation
+[*]MCM (Mod Configuration Menu) integration via SkyUI
+[/list]
+[size=4][b]Code Metrics[/b][/size]
+
+| Component | Lines of Code |
+|-----------|---------------|
+| screencapture.cpp | ~3,276 |
+| PapyrusInterface.cpp | ~643 |
+| config.cpp | ~260 |
+| [b]Total C++ Source[/b] | [b]~4,878[/b] |
+
+[line]
+[size=5][b]Architecture[/b][/size]
+
+[size=4][b]High-Level Design[/b][/size]
+
+[code]┌─────────────────────────────────────────────────────────────────┐
+│                        Skyrim SE Process                         │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────┐    ┌──────────────────────────────────┐  │
+│  │   Papyrus VM     │    │         SKSE Framework            │  │
+│  │                  │    │                                    │  │
+│  │  MCM Scripts     │◄──►│  CommonLibSSE-NG Abstraction      │  │
+│  │  Quest Scripts   │    │                                    │  │
+│  └────────┬─────────┘    └──────────────┬───────────────────┘  │
+│           │                              │                       │
+│           ▼                              ▼                       │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                  Printscreen.dll                          │  │
+│  │  ┌────────────────┐  ┌─────────────┐  ┌──────────────┐   │  │
+│  │  │PapyrusInterface│  │ScreenCapture│  │   Config     │   │  │
+│  │  │                │  │             │  │              │   │  │
+│  │  │ Native funcs   │─►│ Capture     │  │ INI parsing  │   │  │
+│  │  │ Worker threads │  │ Encode      │  │ Settings     │   │  │
+│  │  └────────────────┘  │ Save        │  └──────────────┘   │  │
+│  │                      └──────┬──────┘                      │  │
+│  │                             │                             │  │
+│  │  ┌──────────────┐  ┌───────▼───────┐  ┌──────────────┐   │  │
+│  │  │  MemoryPool  │  │   DirectX 11  │  │    Logger    │   │  │
+│  │  │              │  │   DXGI 1.2    │  │   (spdlog)   │   │  │
+│  │  │ Frame buffers│  │   DirectXTex  │  │              │   │  │
+│  │  └──────────────┘  └───────────────┘  └──────────────┘   │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              Windows Desktop Duplication API                     │
+│                    (D3D11 / DXGI 1.2)                           │
+└─────────────────────────────────────────────────────────────────┘
+[/code]
+
+[size=4][b]Threading Model[/b][/size]
+
+[list]
+[*][b]Main Thread[/b]: Papyrus VM calls, state management
+[*][b]Worker Thread[/b]: Detached [font=Courier New]std::thread[/font] for capture operations
+[*][b]Synchronization[/b]: [font=Courier New]std::atomic<bool>[/font] flags, [font=Courier New]std::mutex[/font] for result string
+[/list]
+[line]
+[size=5][b]Project Structure[/b][/size]
+
+[code]PrintscreenV3/
+├── src/                           # C++ source directory
+│   ├── plugin.cpp                 # SKSE entry points (Query/Version/Load)
+│   ├── screencapture.cpp/.h       # Core capture engine
+│   ├── PapyrusInterface.cpp/.h    # Papyrus native function bindings
+│   ├── config.cpp/.h              # INI configuration system
+│   ├── logger.cpp/.h              # spdlog-based logging wrapper
+│   ├── pch.h                      # Precompiled headers
+│   ├── stringutils.h              # UTF-8/UTF-16 conversion utilities
+│   ├── cancel.h                   # Cancellation exception support
+│   ├── memory_pool/
+│   │   ├── MemoryPool.cpp/.h      # Custom memory pool allocator
+│   └── CMakeLists.txt             # Source-level CMake configuration
+│
+├── Papyrus Scripts/               # Papyrus source scripts (.psc)
+│   ├── Printscreen_Formula_script.psc     # Native function declarations
+│   ├── Printscreen_MainQuest_script.psc   # Main state management
+│   ├── Printscreen_MCM__Script.psc        # MCM menu configuration
+│   ├── Printscreen_MAP_script.psc         # Key mapping support
+│   ├── Printscreen_ME_script.psc          # Magic effect handler
+│   ├── Printscreen_PlayerRef_Script.psc   # Player reference alias
+│   └── ArrayUtils.psc                     # Array utility functions
+│
+├── CMakeLists.txt                 # Root CMake configuration
+├── CMakePresets.json              # CMake build presets
+├── vcpkg.json                     # vcpkg dependency manifest
+├── vcpkg-configuration.json       # vcpkg registry configuration
+├── pch.h                          # Root precompiled header
+│
+├── usersGuide.md                  # End-user documentation
+├── technical_summary.md           # Architecture overview
+├── Nexus+description.txt          # Nexus Mods description
+│
+└── build/                         # Build output directory
+    └── bin/                       # Compiled DLL output
+[/code]
+
+[line]
+[size=5][b]Build System[/b][/size]
+
+[size=4][b]Toolchain[/b][/size]
+
+| Component | Version/Specification |
+|-----------|----------------------|
+| Build Tool | CMake 3.25+ |
+| Generator | Ninja |
+| Compiler | MSVC (Visual Studio 2022) |
+| C++ Standard | C++20 |
+| Architecture | x64 (x64-windows-static-md) |
+| Package Manager | vcpkg |
+
+[size=4][b]CMake Configuration[/b][/size]
+
+[b]Compiler Flags:[/b]
+[list]
+[*][font=Courier New]/permissive-[/font] - Strict conformance mode
+[*][font=Courier New]/Zc:preprocessor[/font] - Conforming preprocessor
+[*][font=Courier New]/EHsc[/font] - Exception handling
+[*][font=Courier New]/MP[/font] - Parallel compilation
+[*][font=Courier New]/W4[/font] - Warning level 4
+[*][font=Courier New]/utf-8[/font] - UTF-8 source encoding
+[/list]
+[b]Preprocessor Definitions:[/b]
+[list]
+[*][font=Courier New]WIN32_LEAN_AND_MEAN[/font]
+[*][font=Courier New]NOMINMAX[/font]
+[*][font=Courier New]UNICODE[/font] / [font=Courier New]_UNICODE[/font]
+[*][font=Courier New]_CRT_SECURE_NO_WARNINGS[/font]
+[/list]
+[size=4][b]Build Presets[/b][/size]
+
+| Preset | Configuration | Runtime | Use Case |
+|--------|---------------|---------|----------|
+| [font=Courier New]debug[/font] | Debug | MultiThreadedDebugDLL | Development |
+| [font=Courier New]release[/font] | Release | MultiThreadedDLL | Distribution |
+| [font=Courier New]relwithdebinfo[/font] | RelWithDebInfo | MultiThreadedDLL | Profiling |
+
+[line]
+[size=5][b]Dependencies[/b][/size]
+
+[size=4][b]Runtime Dependencies[/b][/size]
+
+| Library | Purpose | Integration |
+|---------|---------|-------------|
+| [b]CommonLibSSE-NG[/b] | SKSE abstraction layer | vcpkg (colorglass registry) |
+| [b]DirectXTex[/b] | Texture processing, BC compression | vcpkg |
+| [b]DirectXTK[/b] | DirectX helper utilities | vcpkg |
+| [b]spdlog[/b] | Logging framework | vcpkg |
+| [b]fmt[/b] | Format string library | vcpkg (spdlog dependency) |
+| [b]libpng[/b] | PNG encoding (APNG support) | vcpkg (optional) |
+| [b]lodepng[/b] | Alternative PNG encoder | vcpkg (optional) |
+
+[size=4][b]Windows SDK Components[/b][/size]
+
+| Library | Purpose |
+|---------|---------|
+| [font=Courier New]d3d11.lib[/font] | Direct3D 11 device creation |
+| [font=Courier New]dxgi.lib[/font] | DXGI adapter/output enumeration |
+| [font=Courier New]windowscodecs.lib[/font] | Windows Imaging Component |
+| [font=Courier New]ole32.lib[/font] | COM runtime |
+| [font=Courier New]propsys.lib[/font] | Property system (WIC) |
+
+[size=4][b]Game Dependencies[/b][/size]
+
+| Dependency | Purpose |
+|------------|---------|
+| SKSE | Script Extender framework |
+| SkyUI | MCM menu framework |
+| Address Library | Version-independent addressing |
+| ConsoleUtil | HUD toggle ([font=Courier New]tm[/font] command) |
+| PapyrusUtil / JsonUtil | JSON configuration storage |
+| JContainers | Advanced key mapping |
+
+[line]
+[size=5][b]Core Components[/b][/size]
+
+[size=4][b]1. plugin.cpp - SKSE Entry Point[/b][/size]
+
+Implements required SKSE export functions:
+
+[code]extern "C" __declspec(dllexport) bool SKSEPlugin_Query(
+    const SKSE::QueryInterface* a_skse,
+    SKSE::PluginInfo* a_info);
+
+extern "C" __declspec(dllexport) constinit SKSE::PluginVersionData SKSEPlugin_Version;
+
+extern "C" __declspec(dllexport) bool SKSEPlugin_Load(
+    const SKSE::LoadInterface* a_skse);
+[/code]
+
+[b]Responsibilities:[/b]
+[list]
+[*]Runtime version validation (rejects Creation Kit)
+[*]Configuration system initialization
+[*]Logging setup (spdlog sinks)
+[*]Papyrus function registration
+[/list]
+[size=4][b]2. ScreenCapture - Core Capture Engine[/b][/size]
+
+[b]Location:[/b] [font=Courier New]src/screencapture.cpp[/font] (~3,276 lines)
+
+[size=3][b]Key Enumerations[/b][/size]
+
+[code]enum class ImageFormat { PNG, JPEG, BMP, TIF, GIF, APNG, DDS };
+
+enum class TiffMode { NONE, LZW, CCITT1D, CCITT4, RLE, ZIP };
+
+enum class DDSCompression {
+    BC1, BC2, BC3, BC4, BC5, BC6H,
+    BC7_SLOW, BC7_NORMAL, BC7_FAST
+};
+[/code]
+
+[size=3][b]Core Structures[/b][/size]
+
+[code]struct CaptureParams {
+    ImageFormat format;
+    int quality;                    // JPEG quality (0-100)
+    TiffMode tiffMode;
+    DDSCompression ddsMode;
+    float animDuration;             // Animation duration (seconds)
+    float animFPS;                  // Frames per second
+    int loopCount;                  // GIF/APNG loop count
+    int compression;                // Differential encoding mode
+    int optimize;                   // True delta encoding flag
+    std::atomic<bool>* cancelFlag;
+    std::function<void()> onFramesCaptured;
+};
+
+struct CaptureResult {
+    bool success;
+    std::string errorMessage;
+    std::string outputPath;
+};
+[/code]
+
+[size=3][b]Desktop Duplication Pipeline[/b][/size]
+
+[list=1]
+[*][b]Setup[/b] ([font=Courier New]SetupDesktopDuplication()[/font]):
+[/list]   - Create D3D11 device with [font=Courier New]D3D_DRIVER_TYPE_HARDWARE[/font]
+   - Query DXGI factory → enumerate adapters → enumerate outputs
+   - Call [font=Courier New]DuplicateOutput()[/font] on primary display
+
+[list=1]
+[*][b]Frame Capture[/b] ([font=Courier New]CaptureSingleFrame()[/font]):
+[/list]   - [font=Courier New]AcquireNextFrame()[/font] with timeout
+   - Query [font=Courier New]IDXGIResource[/font] for [font=Courier New]ID3D11Texture2D[/font]
+   - Create CPU-readable staging texture
+   - [font=Courier New]CopyResource()[/font] GPU → staging
+   - [font=Courier New]Map()[/font] staging → [font=Courier New]memcpy()[/font] to ScratchImage
+
+[list=1]
+[*][b]Encoding[/b]:
+[/list]   - WIC path: PNG, JPEG, BMP, TIF, static GIF
+   - DirectXTex path: DDS with BC compression
+   - Custom path: Animated GIF/APNG
+
+[size=3][b]Animated Capture (Disk-Based)[/b][/size]
+
+To prevent memory exhaustion during long recordings:
+
+[code]┌─────────────────────────────────────────────────────────────┐
+│                    Capture Phase                             │
+├─────────────────────────────────────────────────────────────┤
+│  for each frame in duration:                                │
+│    1. AcquireNextFrame()                                    │
+│    2. Copy to staging texture                               │
+│    3. SaveTempFrame() as BMP to disk                        │
+│    4. Release ScratchImage memory                           │
+│    5. Sleep until next frame time                           │
+│    6. Check cancellation flag                               │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Callback Phase                            │
+├─────────────────────────────────────────────────────────────┤
+│  Fire onFramesCaptured() → Papyrus restores HUD             │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Encoding Phase                            │
+├─────────────────────────────────────────────────────────────┤
+│  for each temp BMP:                                         │
+│    1. Load from disk                                        │
+│    2. Quantize to 8-bit indexed (GIF)                       │
+│    3. Compute differential region                           │
+│    4. Encode frame to output                                │
+│    5. Release memory                                        │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Cleanup Phase                             │
+├─────────────────────────────────────────────────────────────┤
+│  Delete temporary BMP files                                 │
+└─────────────────────────────────────────────────────────────┘
+[/code]
+
+[size=3][b]Differential Encoding[/b][/size]
+
+[b]GIF Optimization ([font=Courier New]gifOptimize[/font]):[/b]
+[list]
+[*][font=Courier New]0[/font]: Region-only delta (extract bounding box of changed pixels)
+[*][font=Courier New]1[/font]: True delta (unchanged pixels marked as transparent)
+[/list]
+[b]APNG Optimization ([font=Courier New]apngOptimize[/font]):[/b]
+[list]
+[*][font=Courier New]0[/font]: Region-only delta with fcTL offset
+[*][font=Courier New]1[/font]: True delta with [font=Courier New]APNG_BLEND_OP_OVER[/font]
+[/list]
+[size=4][b]3. PapyrusInterface - Script Bridge[/b][/size]
+
+[b]Location:[/b] [font=Courier New]src/PapyrusInterface.cpp[/font] (~643 lines)
+
+Bridges Papyrus VM to C++ capture logic via CommonLibSSE-NG bindings.
+
+[size=3][b]State Management[/b][/size]
+
+[code]namespace PrintScreenPapyrus {
+    std::atomic<bool> g_cancelRequested{false};
+    std::atomic<bool> g_operationInProgress{false};
+    std::atomic<bool> g_isStarting{false};
+    std::atomic<bool> g_resultReady{false};
+
+    std::mutex g_resultMutex;
+    std::string g_captureResult;
+
+    std::thread::id g_mainThreadId;
+}
+[/code]
+
+[size=3][b]Worker Thread Flow[/b][/size]
+
+[code]void CaptureWorkerThread(/* params */) {
+    try {
+        g_operationInProgress.store(true);
+
+        // Route to appropriate capture function
+        switch (format) {
+            case SINGLE_FRAME:
+                result = PerformImageCapture(params);
+                break;
+            case GIF:
+                result = PerformGifCapture(params);
+                break;
+            case APNG:
+                result = PerformAPNGCapture(params);
+                break;
+        }
+
+        // Store result atomically
+        {
+            std::lock_guard<std::mutex> lock(g_resultMutex);
+            g_captureResult = result;
+        }
+        g_resultReady.store(true);
+
+    } catch (const Cancelled&) {
+        SetResult("CALLBACK_CANCELLED");
+    } catch (const std::exception& e) {
+        SetResult("CALLBACK_ERROR: " + std::string(e.what()));
+    }
+
+    g_operationInProgress.store(false);
+}
+[/code]
+
+[size=4][b]4. Config - Configuration System[/b][/size]
+
+[b]Location:[/b] [font=Courier New]src/config.cpp[/font] (~260 lines)
+
+[size=3][b]INI File Locations[/b][/size]
+
+| Type | Path |
+|------|------|
+| Modern | [font=Courier New]Documents/My Games/Skyrim Special Edition/SKSE/PrintScreen.ini[/font] |
+| Legacy | [font=Courier New]Documents/My Games/Skyrim Special Edition/SKSE/Plugins/Printscreen_Log.ini[/font] |
+
+[size=3][b]Settings Structure[/b][/size]
+
+[code]struct Settings {
+    // Logging
+    LogLevel logLevel = LogLevel::INFO;
+    bool consoleOutput = false;
+    bool fileOutput = true;
+    bool showTimestamps = true;
+    uint32_t maxLogFileSizeMB = 8;
+
+    // Performance
+    bool parallelCompression = true;
+    uint32_t compressionThreads = 0;  // 0 = auto-detect
+
+    // Capture
+    bool logCaptureProgress = false;
+    bool logTimingInfo = false;
+
+    // DDS
+    DDSMode ddsMode = DDSMode::BC7;
+};
+[/code]
+
+[size=4][b]5. MemoryPool - Custom Allocator[/b][/size]
+
+[b]Location:[/b] [font=Courier New]src/memory_pool/MemoryPool.cpp[/font]
+
+[size=3][b]Design Goals[/b][/size]
+
+[list]
+[*]Reusable frame buffers (~8 MB at 1080p BGRA)
+[*]Avoid repeated OS malloc/free during capture loops
+[*]Best-fit block selection to minimize fragmentation
+[*]Thread-safe allocation/deallocation
+[/list]
+[size=3][b]Interface[/b][/size]
+
+[code]class MemoryPool {
+public:
+    void* allocate(size_t size);
+    PoolBuffer allocateBuffer(size_t size);  // RAII wrapper
+    void deallocate(void* ptr);
+    void reset();   // Free all blocks (must not be in use)
+    void trim();    // Free only unused blocks
+    void logStats();
+
+private:
+    struct PoolBlock {
+        std::unique_ptr<uint8_t[]> data;
+        size_t size;
+        bool inUse;
+    };
+    std::vector<PoolBlock> blocks;
+    std::mutex mutex;
+    // Statistics...
+};
+
+class PoolBuffer {
+public:
+    PoolBuffer(MemoryPool* pool, void* ptr, size_t size);
+    ~PoolBuffer();  // Auto-returns to pool
+    PoolBuffer(PoolBuffer&& other) noexcept;  // Move-only
+
+    void* data() const;
+    size_t size() const;
+};
+[/code]
+
+[size=4][b]6. Logger - Logging System[/b][/size]
+
+[b]Location:[/b] [font=Courier New]src/logger.cpp[/font]
+
+Wraps spdlog with project-specific configuration:
+
+[code]namespace logger {
+    template<typename... Args>
+    void trace(fmt::format_string<Args...> fmt, Args&&... args);
+
+    template<typename... Args>
+    void debug(fmt::format_string<Args...> fmt, Args&&... args);
+
+    template<typename... Args>
+    void info(fmt::format_string<Args...> fmt, Args&&... args);
+
+    template<typename... Args>
+    void warn(fmt::format_string<Args...> fmt, Args&&... args);
+
+    template<typename... Args>
+    void error(fmt::format_string<Args...> fmt, Args&&... args);
+
+    template<typename... Args>
+    void critical(fmt::format_string<Args...> fmt, Args&&... args);
+
+    void SetupLog();
+}
+[/code]
+
+[b]Log Output:[/b]
+[list]
+[*]File: [font=Courier New]{SKSE}/Printscreen.log[/font] (rotating, default 8 MB)
+[*]Console: MSVC debug output (optional)
+[/list]
+[line]
+[size=5][b]API Reference[/b][/size]
+
+[size=4][b]Papyrus Native Functions[/b][/size]
+
+Registered on [font=Courier New]Printscreen_Formula_script[/font]:
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| [font=Courier New]CheckPath[/font] | [font=Courier New]bool(string path)[/font] | Validates output directory, creates if needed |
+| [font=Courier New]TakePhoto[/font] | [font=Courier New]string(string basePath, string imageType, float jpgCompression, string compressionMode, float duration, float fps, int loopCount, int compression, int optimize)[/font] | Initiates async capture |
+| [font=Courier New]Get_Result[/font] | [font=Courier New]string()[/font] | Returns current state or callback result |
+| [font=Courier New]Cancel[/font] | [font=Courier New]string()[/font] | Sets cancellation flag |
+| [font=Courier New]ForceReset[/font] | [font=Courier New]string()[/font] | Resets all state, trims memory pool |
+| [font=Courier New]ResetState[/font] | [font=Courier New]string()[/font] | Alias for ForceReset |
+
+[size=4][b]TakePhoto Parameters[/b][/size]
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| [font=Courier New]basePath[/font] | string | Output directory path |
+| [font=Courier New]imageType[/font] | string | Format: "PNG", "JPG", "BMP", "TIF", "DDS", "GIF", "AGIF", "APNG" |
+| [font=Courier New]jpgCompression[/font] | float | JPEG quality (0-100) |
+| [font=Courier New]compressionMode[/font] | string | TIFF: "UNCOMPRESSED", "RLE", "LZW", "ZIP"; DDS: "BC1"-"BC7" |
+| [font=Courier New]duration[/font] | float | Animation duration in seconds |
+| [font=Courier New]fps[/font] | float | Animation frames per second |
+| [font=Courier New]loopCount[/font] | int | Loop count (0 = infinite) |
+| [font=Courier New]compression[/font] | int | 0 = full frames, 1 = differential |
+| [font=Courier New]optimize[/font] | int | 0 = region delta, 1 = true delta (transparency) |
+
+[size=4][b]Result States[/b][/size]
+
+| Result | Meaning |
+|--------|---------|
+| [font=Courier New]"Running"[/font] | Capture in progress |
+| [font=Courier New]"CALLBACK_SAVED"[/font] | Capture completed successfully |
+| [font=Courier New]"CALLBACK_ERROR: {message}"[/font] | Capture failed with error |
+| [font=Courier New]"CALLBACK_CANCELLED"[/font] | Capture was cancelled |
+
+[line]
+[size=5][b]Configuration[/b][/size]
+
+[size=4][b]INI File Structure[/b][/size]
+
+[code][Logging]
+LogLevel=3              ; 0=NONE, 1=ERROR, 2=WARN, 3=INFO, 4=DEBUG, 5=TRACE
+ConsoleOutput=0         ; Output to debugger console
+FileOutput=1            ; Write to log file
+ShowTimestamps=1        ; Include timestamps
+MaxLogFileSizeMB=8      ; Log rotation size
+
+[Performance]
+ParallelCompression=1   ; Multi-threaded DDS compression
+CompressionThreads=0    ; 0 = auto-detect CPU count
+
+[Capture]
+LogCaptureProgress=0    ; Log frame capture progress
+LogTimingInfo=0         ; Log timing details
+
+[DDS]
+DDSMode=BC7             ; Default DDS compression format
+[/code]
+
+[size=4][b]MCM Configuration (JSON)[/b][/size]
+
+User preferences stored via JContainers:
+
+| Setting | Type | Description |
+|---------|------|-------------|
+| Path | string | Output directory |
+| ImageType | string | Default format |
+| JPG_Compression | int | JPEG quality |
+| Duration | float | Animation duration |
+| FPS | float | Animation FPS |
+| LoopCount | int | Animation loops |
+| Compression | int | Differential mode |
+| Optimize | int | True delta mode |
+| Key_TakePhoto | int | Screenshot hotkey |
+| Menu | int | MCM menu state |
+
+[line]
+[size=5][b]Data Flow[/b][/size]
+
+[size=4][b]Screenshot Capture Sequence[/b][/size]
+
+[code]┌─────────────┐     ┌────────────────────┐     ┌─────────────────┐
+│   User      │     │   Papyrus VM       │     │   C++ Plugin    │
+│ (Keyboard)  │     │                    │     │                 │
+└──────┬──────┘     └─────────┬──────────┘     └────────┬────────┘
+       │                      │                         │
+       │ Hotkey Press         │                         │
+       ├─────────────────────►│                         │
+       │                      │                         │
+       │                      │ OnKeyDown()             │
+       │                      ├────────────────────────►│
+       │                      │ TakePhoto()             │
+       │                      │                         │
+       │                      │◄────────────────────────┤
+       │                      │ "Running"               │
+       │                      │                         │
+       │                      │         ┌───────────────┤
+       │                      │         │ Worker Thread │
+       │                      │         │               │
+       │                      │         │ Desktop Dup   │
+       │                      │         │ Capture Frame │
+       │                      │         │ Encode/Save   │
+       │                      │         │               │
+       │                      │ Poll    │               │
+       │                      ├────────►│               │
+       │                      │Get_Result()             │
+       │                      │◄────────┤               │
+       │                      │"Running"│               │
+       │                      │         │               │
+       │                      │   ...   │ Complete      │
+       │                      │         │◄──────────────┤
+       │                      │         │               │
+       │                      │ Poll    │               │
+       │                      ├────────►│               │
+       │                      │Get_Result()             │
+       │                      │◄────────┤               │
+       │                      │"CALLBACK_SAVED"         │
+       │                      │                         │
+       │ Notification         │                         │
+       │◄─────────────────────┤                         │
+       │                      │                         │
+[/code]
+
+[line]
+[size=5][b]Memory Management[/b][/size]
+
+[size=4][b]Frame Buffer Strategy[/b][/size]
+
+| Scenario | Strategy |
+|----------|----------|
+| Single-frame capture | MemoryPool allocation → capture → encode → deallocate |
+| Animated capture | MemoryPool allocation → capture → save to disk → deallocate → repeat |
+| Post-capture encoding | Load from disk → encode one frame → deallocate → repeat |
+
+[size=4][b]Memory Pool Statistics[/b][/size]
+
+Available via [font=Courier New]logStats()[/font]:
+[list]
+[*]Total bytes allocated
+[*]Bytes currently in use
+[*]Allocation count
+[*]Reuse count
+[*]Block count and sizes
+[/list]
+[line]
+[size=5][b]Supported Formats[/b][/size]
+
+[size=4][b]Single-Frame Formats[/b][/size]
+
+| Format | Encoder | Compression Options |
+|--------|---------|---------------------|
+| PNG | WIC | Lossless |
+| JPEG | WIC | Quality 0-100 |
+| BMP | WIC | Uncompressed |
+| TIF | WIC | None, LZW, RLE, ZIP, CCITT |
+| DDS | DirectXTex | BC1-BC7 |
+
+[size=4][b]Animated Formats[/b][/size]
+
+| Format | Encoder | Features |
+|--------|---------|----------|
+| GIF | WIC + Custom | 8-bit color, differential, transparency delta |
+| APNG | Custom chunk assembly | Full color, differential, blend operations |
+
+[size=4][b]DDS Compression Modes[/b][/size]
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| BC1 | RGB, 1-bit alpha | Simple textures |
+| BC2 | RGB, explicit 4-bit alpha | Sharp alpha edges |
+| BC3 | RGB, interpolated 8-bit alpha | Smooth alpha |
+| BC4 | Single channel | Grayscale/height maps |
+| BC5 | Two channels | Normal maps |
+| BC6H | HDR RGB | HDR content |
+| BC7 | High-quality RGBA | Best quality |
+
+[line]
+[size=5][b]Runtime Compatibility[/b][/size]
+
+[size=4][b]Supported Skyrim Versions[/b][/size]
+
+| Version | Status |
+|---------|--------|
+| 1.5.39 | Supported |
+| 1.5.97 | Supported |
+| 1.6.318 | Supported |
+| 1.6.353 | Supported |
+| 1.6.629 | Supported |
+| 1.6.640 | Supported |
+| 1.6.659 | Supported |
+| 1.6.678 | Supported |
+| 1.6.1130 | Supported |
+| 1.6.1170 | Supported |
+
+[size=4][b]Requirements[/b][/size]
+
+[list]
+[*]Windows 10/11 x64
+[*]DirectX 11.1 compatible GPU
+[*]SKSE (Skyrim Script Extender)
+[*]Address Library for SKSE Plugins
+[/list]
+[line]
+[size=5][b]Build Instructions[/b][/size]
+
+[size=4][b]Prerequisites[/b][/size]
+
+[list=1]
+[*]Visual Studio 2022 with C++ workload
+[*]CMake 3.25+
+[*]vcpkg package manager
+[*]Git
+[/list]
+[size=4][b]Build Steps[/b][/size]
+
+[code]# Clone repository
+git clone <repository-url>
+cd PrintscreenV3
+
+# Configure with CMake preset
+cmake --preset release
+
+# Build
+cmake --build build --config Release
+[/code]
+
+[size=4][b]Build Outputs[/b][/size]
+
+| File | Location |
+|------|----------|
+| [font=Courier New]Printscreen.dll[/font] | [font=Courier New]build/bin/[/font] |
+
+[size=4][b]Deployment[/b][/size]
+
+Copy to Mod Organizer 2 or manual installation:
+
+[code]Skyrim Special Edition/
+└── Data/
+    └── SKSE/
+        └── Plugins/
+            └── Printscreen.dll
+[/code]
+
+[size=4][b]Debug Build[/b][/size]
+
+[code]cmake --preset debug
+cmake --build build --config Debug
+[/code]
+
+Debug build enables:
+[list]
+[*]Debug symbols
+[*]Runtime checks
+[*]Verbose logging
+[/list]
+[line]
+[size=5][b]Error Handling[/b][/size]
+
+[size=4][b]Exception Types[/b][/size]
+
+| Exception | Source | Handling |
+|-----------|--------|----------|
+| [font=Courier New]Cancelled[/font] | Cancel flag check | Clean unwind, return CALLBACK_CANCELLED |
+| [font=Courier New]std::exception[/font] | General errors | Log error, return CALLBACK_ERROR |
+| COM/HRESULT | DirectX/WIC | Convert to readable message, return CALLBACK_ERROR |
+
+[size=4][b]HRESULT Error Formatting[/b][/size]
+
+DirectX and WIC errors are converted to human-readable messages with error codes for debugging.
+
+[line]
+[size=5][b]Technical Highlights[/b][/size]
+
+[list=1]
+[*][b]No Render Hook[/b]: Uses Windows Desktop Duplication API for compatibility
+[*][b]Memory Efficient[/b]: Custom pool + disk buffering prevents exhaustion
+[*][b]Full Cancellation[/b]: Cooperative cancellation with exception-based unwinding
+[*][b]Modern C++20[/b]: Atomics, mutexes, threads, filesystem, optional
+[*][b]Multi-Format[/b]: Seven formats with format-specific optimizations
+[*][b]Differential Encoding[/b]: Minimal file sizes for animations
+[*][b]Parallel Compression[/b]: Multi-threaded BC encoding
+[*][b]Cross-Version[/b]: Address Library ensures Skyrim version compatibility
+[/list]
+[line]
+[size=5][b]License[/b][/size]
+
+Copyright William G Lea. All rights reserved.
+
+[line]
+[i]Generated: April 2026[/i]

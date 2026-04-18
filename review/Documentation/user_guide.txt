@@ -1,0 +1,160 @@
+[size=6][b]PrintScreen V3 — User's Guide[/b][/size]
+
+[size=5][b]What Is PrintScreen V3?[/b][/size]
+
+PrintScreen V3 is a Skyrim Special Edition mod that replaces the game's basic screenshot functionality with a full-featured screen capture system. It supports seven image formats — including animated GIF and animated PNG — and is controlled entirely through an in-game MCM (Mod Configuration Menu) panel and a configurable hotkey.
+
+[size=5][b]Requirements[/b][/size]
+
+Before installing PrintScreen V3, make sure the following are already installed and working:
+
+[list]
+[*][b]SKSE[/b] (Skyrim Script Extender) — the plugin will not load without it.
+[*][b]SkyUI[/b] — required for the MCM settings panel.
+[*][b]ConsoleUtil[/b] — used to toggle the HUD on and off during captures.
+[*][b]JContainers[/b] — used for persistent JSON-based configuration storage.
+[*][b]PapyrusUtil[/b] — provides the JsonUtil API for reading and writing settings.
+[*][b]Address Library for SKSE Plugins[/b] — required by CommonLibSSE-NG.
+[/list]
+PrintScreen V3 is compatible with Skyrim SE versions 1.5.39 through 1.6.1170. It uses Address Library for version-independent addressing.
+
+[size=5][b]Installation[/b][/size]
+
+Install using a mod manager such as Mod Organizer 2 or Vortex. The mod deploys:
+
+[list]
+[*]An SKSE plugin DLL ([font=Courier New]Printscreen.dll[/font]) into [font=Courier New]SKSE/Plugins/[/font].
+[*]Papyrus scripts into [font=Courier New]Scripts/[/font].
+[*]MCM configuration resources (menu XML, translation file, splash images) into the appropriate [font=Courier New]Interface/[/font] folders.
+[/list]
+On first launch after installation, a default INI file is created automatically at:
+
+[code]Documents\My Games\Skyrim Special Edition\SKSE\PrintScreen.ini
+[/code]
+
+A JSON configuration file ([font=Courier New]PrintScreenConfig.json[/font]) is also created via JContainers on first run to persist your MCM settings across saves.
+
+[size=5][b]Getting Started[/b][/size]
+
+[list=1]
+[*]Launch Skyrim and load a save.
+[*]Open the MCM menu (via SkyUI's System menu) and select [b]PrintScreen[/b].
+[*]On the [b]Settings[/b] page you will see a splash image on the title page and all configuration options on the Settings tab.
+[*]Press the configured hotkey (default: [b]Backspace[/b]) to take a screenshot.
+[/list]
+[size=5][b]MCM Settings Reference[/b][/size]
+
+[size=4][b]Path[/b][/size]
+
+The filesystem path where images are saved. Must be an absolute Windows path (e.g. [font=Courier New]C:\Pictures\Skyrim[/font]). If the directory doesn't exist, PrintScreen will attempt to create it. The path is validated with a read/write probe test when you enter it.
+
+If your path is longer than 30 characters, the MCM displays "Json Long Path Option" and path editing is disabled in the MCM — edit the path directly in the JSON config file instead.
+
+[size=4][b]Image File Type[/b][/size]
+
+Choose one of eight formats:
+
+| Format | Extension | Notes |
+|--------|-----------|-------|
+| [b]PNG[/b] | .png | Lossless, default choice |
+| [b]APNG[/b] | .png | Animated PNG — multi-frame, lossless |
+| [b]BMP[/b] | .bmp | Uncompressed bitmap |
+| [b]TIF[/b] | .tif | TIFF with optional compression |
+| [b]JPG[/b] | .jpg | Lossy, adjustable quality |
+| [b]GIF[/b] | .gif | Static single-frame GIF |
+| [b]AGIF[/b] | .gif | Animated GIF — multi-frame |
+| [b]DDS[/b] | .dds | DirectX texture with BC compression |
+
+When you change the image type, the MCM automatically enables and disables the relevant sub-options (e.g. JPG quality slider, DDS compression mode, animation duration).
+
+[size=4][b]Take Photo Key[/b][/size]
+
+The hotkey that triggers a capture. Default is [b]Backspace[/b] (keycode 14). Choose any unbound key. While a capture is in progress, pressing the hotkey again cancels it.
+
+[size=4][b]Automatic UI Disable (Experimental)[/b][/size]
+
+When enabled, the HUD is automatically hidden before a capture and restored afterward using the [font=Courier New]tm[/font] console command. This is marked experimental because it toggles all UI elements.
+
+[size=4][b]JPG Quality[/b][/size]
+
+Available when image type is JPG. A slider from 0 to 100 controlling JPEG compression quality. Higher values produce larger, better-looking files. Default is 90.
+
+[size=4][b]TIF Compression Mode[/b][/size]
+
+Available when image type is TIF. Options are Uncompressed, RLE, LZW, or ZIP.
+
+[size=4][b]DDS Compression Mode[/b][/size]
+
+Available when image type is DDS. Options include Uncompressed, BC1 through BC5, BC6H, and BC7 (in Slow, Normal, and Fast variants). BC7 modes produce the highest quality but take noticeably longer to encode — several seconds per capture.
+
+[size=4][b]Capture Duration (Animated Only)[/b][/size]
+
+Available for AGIF and APNG. Controls how long the capture runs, from 1 to 15 seconds. The frame rate is automatically calculated from the duration (shorter durations get higher FPS, longer durations get lower FPS to keep file sizes manageable).
+
+[size=4][b]Loop Count (Animated Only)[/b][/size]
+
+How many times the animated image loops on playback. 0 means infinite looping.
+
+[size=4][b]Differential Compression (Animated Only)[/b][/size]
+
+Set to 0 for full-frame encoding (every frame stores the complete image) or 1 for differential encoding (only the changed region of each frame is stored). Differential encoding produces significantly smaller files.
+
+[size=4][b]Optimize (Animated Only)[/b][/size]
+
+Set to 0 for region-extraction-only differential encoding, or 1 for true delta encoding. True delta encoding marks unchanged pixels as transparent within the changed region, achieving much better compression. Only meaningful when Differential Compression is also set to 1.
+
+[size=4][b]Differential Quality (Animated Only)[/b][/size]
+
+A quality factor from 0 to 100 for animated captures. Controls the balance between file size and visual quality.
+
+[size=5][b]How Capture Works[/b][/size]
+
+When you press the hotkey:
+
+[list=1]
+[*]If "Automatic UI Disable" is on, the HUD is hidden.
+[*]The C++ plugin receives the capture request and launches a background worker thread.
+[*]For single-frame formats (PNG, JPG, BMP, TIF, DDS, static GIF), one frame is captured via DirectX Desktop Duplication and saved immediately.
+[*]For animated formats (AGIF, APNG), frames are captured at the computed FPS and stored to temporary BMP files on disk to avoid exhausting memory. After all frames are captured, they are encoded into the final animated file and the temp files are cleaned up.
+[*]The HUD is restored and a notification appears with the result.
+[/list]
+The entire capture runs asynchronously. Skyrim remains responsive during the process.
+
+[size=5][b]Cancelling a Capture[/b][/size]
+
+Press the hotkey again while a capture is in progress. The cancel signal is cooperative — the worker thread checks for cancellation at many points during the pipeline and stops as soon as possible. After cancellation, the HUD is restored and partial temporary files are cleaned up.
+
+[size=5][b]Configuration Files[/b][/size]
+
+[size=4][b]INI File[/b][/size]
+
+Located at [font=Courier New]Documents\My Games\Skyrim Special Edition\SKSE\PrintScreen.ini[/font]. Controls logging behavior and performance tuning. Sections:
+
+[list]
+[*][b][Logging][/b] — LogLevel (0–5, default DEBUG for new installs), ConsoleOutput, FileOutput, ShowTimestamps, MaxLogFileSizeMB.
+[*][b][Performance][/b] — ParallelCompression (true/false), CompressionThreads (0 = auto).
+[*][b][Capture][/b] — LogCaptureProgress, LogTimingInfo.
+[/list]
+A legacy flat-format INI (with keys like [font=Courier New]Level[/font], [font=Courier New]File[/font], [font=Courier New]Console[/font]) is also supported for backward compatibility.
+
+[size=4][b]JSON Config[/b][/size]
+
+Managed automatically by the Papyrus scripts via JContainers' JsonUtil. Stores all MCM settings (path, image type, compression modes, duration, FPS, etc.) so they persist across game sessions. The file is written every time you close the MCM.
+
+[size=5][b]Troubleshooting[/b][/size]
+
+[b]"Invalid screenshot path!"[/b] — The configured path failed validation. Open the MCM and enter a valid absolute path, or edit the JSON config file directly.
+
+[b]Capture hangs or times out[/b] — A built-in 300-second (5-minute) timeout automatically cancels stalled captures. If this happens repeatedly, check the SKSE log for error messages. DDS BC7 compression on large resolutions can legitimately take a long time.
+
+[b]HUD stuck hidden after a crash[/b] — On the next game load, PrintScreen automatically resets the HUD state and runs [font=Courier New]ForceReset[/font] on the native plugin. If the HUD is still hidden, open the console and type [font=Courier New]tm[/font].
+
+[b]Black or washed-out PNG screenshots[/b] — PrintScreen V3 uses manual WIC encoding for PNG to ensure correct BGRA color handling, which should prevent this. If you see color issues, check that no other screenshot overlay (like Steam's) is interfering.
+
+[b]Large animated file sizes[/b] — Enable Differential Compression (set to 1) and Optimize (set to 1) for the smallest animated files. Shorter durations also help.
+
+[size=5][b]Version History[/b][/size]
+
+[list]
+[*][b]v3.0.0[/b] — Current release. Multi-format capture (PNG, JPEG, BMP, TIFF, DDS, GIF, AGIF, APNG), differential and true-delta encoding for animations, MemoryPool integration, disk-based frame buffering, cooperative cancellation, async worker thread architecture, MCM configuration panel with SkyUI.
+[/list]

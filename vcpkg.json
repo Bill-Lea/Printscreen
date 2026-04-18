@@ -1,0 +1,14 @@
+{
+  "name": "printscreen", 
+  "version-string": "3.0.0",
+  "dependencies": [
+    "commonlibsse-ng",
+    "directxtex",
+    "directxtk",
+    "lodepng",
+    {
+      "name": "libpng",
+      "features": ["apng"]
+    }
+  ]
+}
