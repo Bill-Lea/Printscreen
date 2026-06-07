@@ -4,8 +4,6 @@
 #include <cstdint>
 
 namespace Config {
-bool Save();
-bool SaveDefaults();  // Create INI with default values if none exists
 
 // Match the modes your code expects
 enum class DDSMode { UNCOMPRESSED, BC1, BC2, BC3, BC4, BC5, BC6H, BC7 };

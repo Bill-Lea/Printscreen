@@ -4,7 +4,19 @@ Printscreen_MAP_script Property MAP Auto
  
 
 event OnEffectStart(actor target, actor castor )   
-
+string res
+int ttemp = MainQuest.TargetResolution
+if(ttemp == 0)
+    res = "Native"
+elseif(ttemp == 1)
+    res = "720p"
+elseif(ttemp == 2)
+    res = "1080p"
+elseif(ttemp == 3)
+    res = "1440p"
+elseif(ttemp == 4)
+    res = "2160p"
+endif
     String Keyname = Map.GetKeyName(MainQuest.Key_TakePhoto)
 	
 if(MainQuest.ImageType=="PNG"||Mainquest.ImageType=="BMP"||MainQuest.ImageType == "GIF")
@@ -67,7 +79,17 @@ Debug.MessageBox( "Printscreen version " + MainQuest.Version +"\n" + \
 "\n The Photo Key is "+ KeyName  + \
 "\n" + MainQuest.Shots + " Sreenshots taken this session" )
         return
-
+    elseif(Mainquest.Imagetype=="H264")
+        Debug.MessageBox("Printscreen version " + MainQuest.Version +"\n" + \
+"\nThe Image File Type is: "+ MainQuest.ImageType + \
+"\nVideo Resolution: "+res+ \
+"\n The Capture Duration time is: " + mainQuest.VideoDuration +\
+"\n The Capture Frame Rate is: " + MainQuest.VideoFrameRate + \
+"\n The Path is: "+ MainQuest.Path + \
+"\n Automatic Ui removal is: "+ MainQuest.menu + \
+"\n The Photo Key is "+ KeyName  + \
+"\n" + MainQuest.Shots + " Sreenshots taken this session" )
+        return
     else
         Debug.MessageBox("Printscreen: Invalid Image Type selected." +\
 "\n Please check the settings in the MCM menu." +\

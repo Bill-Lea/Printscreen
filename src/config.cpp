@@ -1,4 +1,3 @@
-// config.cpp
 #include "pch.h"
 #include "Config.h"
 #include <Windows.h>
@@ -7,7 +6,7 @@
 #include <fstream>
 #include <set>
 #include <cwctype>
-#include "stringutils.h"
+#include "stringutils.h"  // util::wstring_to_utf8 / utf8_to_wstring
 
 namespace {
     std::wstring skse_folder() {
@@ -18,7 +17,7 @@ namespace {
         return (std::filesystem::path(home) /
                 L"Documents" / L"My Games" / L"Skyrim Special Edition" / L"SKSE").wstring();
     }
-    std::wstring ini_candidate_legacy() {
+    std::wstring ini_candidate_legacy() { // V2 location/name
         return (std::filesystem::path(skse_folder()) / L"Plugins" / L"Printscreen_Log.ini").wstring();
     }
     std::wstring ini_candidate_simple() {
@@ -45,22 +44,7 @@ namespace {
         return (l == "1" || l == "true" || l == "yes" || l == "on");
     }
 
-    // Write helpers
-    void wput(const wchar_t* sec, const wchar_t* key, 
-              const std::wstring& val, const std::wstring& ini) {
-        WritePrivateProfileStringW(sec, key, val.c_str(), ini.c_str());
-    }
-    void wput_u32(const wchar_t* sec, const wchar_t* key, 
-                  uint32_t val, const std::wstring& ini) {
-        wchar_t buf[32];
-        _snwprintf_s(buf, _TRUNCATE, L"%u", val);
-        WritePrivateProfileStringW(sec, key, buf, ini.c_str());
-    }
-    void wput_bool(const wchar_t* sec, const wchar_t* key, 
-                   bool val, const std::wstring& ini) {
-        WritePrivateProfileStringW(sec, key, val ? L"true" : L"false", ini.c_str());
-    }
-
+    // Trim whitespace from wide string
     std::wstring trim_ws(const std::wstring& s) {
         size_t start = 0, end = s.size();
         while (start < end && std::iswspace(s[start])) ++start;
@@ -68,34 +52,50 @@ namespace {
         return s.substr(start, end - start);
     }
 
+    // Convert wide string to lowercase
     std::wstring to_lower_ws(std::wstring s) {
         for (auto& ch : s) ch = std::towlower(ch);
         return s;
     }
 
+    // Set of all valid keys (lowercase) - both new sectioned format and legacy flat format
     const std::set<std::wstring> g_validKeys = {
+        // Sectioned format keys (under [Logging], [Performance], [Capture])
         L"loglevel", L"consoleoutput", L"fileoutput", L"showtimestamps", L"maxlogfilesizemb",
         L"parallelcompression", L"compressionthreads",
         L"logcaptureprogress", L"logtiminginfo",
+        // Legacy flat format keys (for backward compatibility)
         L"level", L"file", L"console", L"timestamps", L"logpath"
     };
 
+    // Validate INI file and collect unknown keys
     std::vector<std::string> validateIniKeys(const std::wstring& iniPath) {
         std::vector<std::string> unknownKeys;
+
         std::wifstream fin(iniPath);
-        if (!fin.is_open()) return unknownKeys;
+        if (!fin.is_open()) {
+            return unknownKeys;
+        }
 
         std::wstring line;
         while (std::getline(fin, line)) {
+            // Strip comments
             auto commentPos = line.find(L';');
-            if (commentPos != std::wstring::npos) line = line.substr(0, commentPos);
+            if (commentPos != std::wstring::npos) {
+                line = line.substr(0, commentPos);
+            }
             commentPos = line.find(L'#');
-            if (commentPos != std::wstring::npos) line = line.substr(0, commentPos);
+            if (commentPos != std::wstring::npos) {
+                line = line.substr(0, commentPos);
+            }
 
             line = trim_ws(line);
             if (line.empty()) continue;
+
+            // Skip section headers
             if (line.front() == L'[' && line.back() == L']') continue;
 
+            // Parse key=value
             auto eqPos = line.find(L'=');
             if (eqPos == std::wstring::npos) continue;
 
@@ -106,14 +106,15 @@ namespace {
                 unknownKeys.push_back(util::wstring_to_utf8(key));
             }
         }
+
         return unknownKeys;
     }
-} // end anonymous namespace
+}
 
 namespace Config {
 
-Settings g_settings{};
-std::vector<std::string> g_unknownKeys{};
+Settings g_settings{}; // NOTE: not static; matches 'extern' in header
+std::vector<std::string> g_unknownKeys{}; // Track unknown keys for later logging
 
 static int to_level(std::wstring v) {
     std::string s = util::wstring_to_utf8(v);
@@ -127,12 +128,17 @@ static int to_level(std::wstring v) {
     try { return std::clamp(std::stoi(s), 0, 5); } catch (...) { return 3; }
 }
 
+// Parse legacy flat format (Level, File, Console, etc.) with fallback sentinel
 static std::wstring wget_legacy(const wchar_t* key, const std::wstring& ini) {
+    // Try reading from root section (no section header)
     wchar_t buf[1024]{};
+    // Use a unique sentinel to detect if key exists
     const wchar_t* sentinel = L"\x01\x02_NOTFOUND_\x02\x01";
     DWORD n = GetPrivateProfileStringW(nullptr, key, sentinel, buf, 1024, ini.c_str());
     std::wstring result(buf, n);
-    if (result == sentinel) return L"";
+    if (result == sentinel) {
+        return L""; // Key not found
+    }
     return result;
 }
 
@@ -144,24 +150,24 @@ bool Initialize()
     g_settings.iniPath = path;
 
     if (!exists(path)) {
-        // INI doesn't exist - create it with defaults at the simple path
-        g_settings.iniPath = simple;
-        
-        // Set default log level to DEBUG (4) so users see more output by default
-        // They can change it to TRACE (5) for maximum verbosity or INFO (3) for less
-        g_settings.logLevel = 4;  // DEBUG by default for new installs
-        
-        SaveDefaults();
-        return true;  // Defaults are now saved and in use
+        return false; // No INI file found, use defaults
     }
 
+    // Validate INI file and collect unknown keys
     g_unknownKeys = validateIniKeys(path);
+
+    // Try new sectioned format first
     std::wstring logLevelVal = wget(L"Logging", L"LogLevel", L"", path);
+
+    // Check if we have sectioned format or legacy flat format
     bool useLegacyFormat = logLevelVal.empty();
 
     if (useLegacyFormat) {
+        // Try legacy flat format (Level, File, Console, Timestamps, LogPath)
         std::wstring levelVal = wget_legacy(L"Level", path);
-        if (!levelVal.empty()) g_settings.logLevel = to_level(levelVal);
+        if (!levelVal.empty()) {
+            g_settings.logLevel = to_level(levelVal);
+        }
 
         std::wstring fileVal = wget_legacy(L"File", path);
         if (!fileVal.empty()) {
@@ -184,73 +190,24 @@ bool Initialize()
             g_settings.showTimestamps = (l == "1" || l == "true" || l == "yes" || l == "on");
         }
     } else {
+        // Use new sectioned format
+        // Logging section
         g_settings.logLevel         = to_level(logLevelVal);
         g_settings.consoleOutput    = wget_bool(L"Logging", L"ConsoleOutput",    g_settings.consoleOutput,    path);
         g_settings.fileOutput       = wget_bool(L"Logging", L"FileOutput",       g_settings.fileOutput,       path);
         g_settings.showTimestamps   = wget_bool(L"Logging", L"ShowTimestamps",   g_settings.showTimestamps,   path);
         g_settings.maxLogFileSizeMB = wget_u32 (L"Logging", L"MaxLogFileSizeMB", g_settings.maxLogFileSizeMB, path);
 
+        // Performance section
         g_settings.parallelCompression = wget_bool(L"Performance", L"ParallelCompression", g_settings.parallelCompression, path);
         g_settings.compressionThreads  = wget_u32 (L"Performance", L"CompressionThreads",  g_settings.compressionThreads,  path);
 
+        // Capture section
         g_settings.logCaptureProgress  = wget_bool(L"Capture", L"LogCaptureProgress", g_settings.logCaptureProgress, path);
         g_settings.logTimingInfo       = wget_bool(L"Capture", L"LogTimingInfo",      g_settings.logTimingInfo,      path);
     }
 
     return true;
-}
-
-bool Save() {
-    const std::wstring path = g_settings.iniPath.empty() 
-        ? ini_candidate_simple() 
-        : g_settings.iniPath;
-    
-    // Ensure directory exists
-    std::error_code ec;
-    std::filesystem::create_directories(
-        std::filesystem::path(path).parent_path(), ec);
-    
-    if (ec) {
-        // Failed to create directory - can't save
-        return false;
-    }
-    
-    wput(L"Logging", L"LogLevel", util::utf8_to_wstring(LogLevelToString(g_settings.logLevel)), path);
-    wput_bool(L"Logging", L"ConsoleOutput", g_settings.consoleOutput, path);
-    wput_bool(L"Logging", L"FileOutput", g_settings.fileOutput, path);
-    wput_bool(L"Logging", L"ShowTimestamps", g_settings.showTimestamps, path);
-    wput_u32(L"Logging", L"MaxLogFileSizeMB", g_settings.maxLogFileSizeMB, path);
-    
-    wput_bool(L"Performance", L"ParallelCompression", g_settings.parallelCompression, path);
-    wput_u32(L"Performance", L"CompressionThreads", g_settings.compressionThreads, path);
-    
-    wput_bool(L"Capture", L"LogCaptureProgress", g_settings.logCaptureProgress, path);
-    wput_bool(L"Capture", L"LogTimingInfo", g_settings.logTimingInfo, path);
-    
-    return true;
-}
-
-bool SaveDefaults() {
-    // Keep the iniPath if already set, otherwise use simple path
-    if (g_settings.iniPath.empty()) {
-        g_settings.iniPath = ini_candidate_simple();
-    }
-    
-    // Reset all settings to defaults EXCEPT iniPath
-    std::wstring savedPath = g_settings.iniPath;
-    int savedLogLevel = g_settings.logLevel;  // Preserve if already set to non-default
-    
-    g_settings = Settings{};  // Reset to defaults
-    g_settings.iniPath = savedPath;
-    
-    // Use DEBUG level by default for new installs (more helpful for troubleshooting)
-    if (savedLogLevel != 3) {  // If it was changed from default INFO
-        g_settings.logLevel = savedLogLevel;
-    } else {
-        g_settings.logLevel = 4;  // DEBUG
-    }
-    
-    return Save();
 }
 
 const std::vector<std::string>& GetUnknownKeys() {

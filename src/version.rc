@@ -3,7 +3,7 @@
 #define STRINGIZE2(s) #s
 #define STRINGIZE(s) STRINGIZE2(s)
 
-#define VERSION_MAJOR 3
+#define VERSION_MAJOR 4
 #define VERSION_MINOR 0
 #define VERSION_PATCH 0
 #define VERSION_BUILD 0
@@ -25,11 +25,11 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "CompanyName", "Your Company"
+            VALUE "CompanyName", "Tulsa Panoramic"
             VALUE "FileDescription", "Printscreen SKSE Plugin"
             VALUE "FileVersion", STRINGIZE(VERSION_MAJOR) "." STRINGIZE(VERSION_MINOR) "." STRINGIZE(VERSION_PATCH) "." STRINGIZE(VERSION_BUILD)
             VALUE "InternalName", "Printscreen"
-            VALUE "LegalCopyright", "Copyright (C) 2024"
+            VALUE "LegalCopyright", "Copyright (C) 2026"
             VALUE "OriginalFilename", "Printscreen.dll"
             VALUE "ProductName", "Printscreen"
             VALUE "ProductVersion", STRINGIZE(VERSION_MAJOR) "." STRINGIZE(VERSION_MINOR) "." STRINGIZE(VERSION_PATCH)

@@ -12,7 +12,9 @@ Int Function FindString(String[] arr, String target) Global
     endif
     Int i = 0
     while (i < arr.Length)
+        Debug.Notification("Comparing: " + arr[i] + " to " + target) ; Debug line
         if (arr[i] == target)
+            Debug.Notification("Found match at index: " + i) ; Debug line
             return i
         endif
         i += 1

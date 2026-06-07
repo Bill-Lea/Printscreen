@@ -7,6 +7,8 @@
 
 // Windows headers
 #define WIN32_LEAN_AND_MEAN
+#define WINVER 0x0A00
+#define _WIN32_WINNT 0x0A00
 #include <windows.h>
 #include <wrl/client.h>
 #include <combaseapi.h>
@@ -15,11 +17,17 @@
 
 // DirectX headers
 #include <d3d11.h>
+#include <d3d10_1.h>   // ID3D10Multithread for multithread protection
 #include <dxgi1_2.h>
 #include <DirectXTex.h>
 
 // WIC headers
 #include <wincodec.h>
+
+// Media Foundation headers
+#include <mfapi.h>
+#include <mfidl.h>
+#include <mfreadwrite.h>
 
 // Standard library headers
 #include <atomic>
@@ -43,6 +51,9 @@
 
 // CRITICAL: Include Config.h in PCH so it's available everywhere
 #include "Config.h"
+
+// Logger namespace (logger::info, logger::warn, logger::error, etc.)
+#include "logger.h"
 
 // COM smart pointer namespace
 using Microsoft::WRL::ComPtr;
