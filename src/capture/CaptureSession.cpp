@@ -8,6 +8,7 @@
 #include "encoding/ApngEncoder.h"
 #include "../VideoCapture.h"
 #include "stringutils.h"
+#include "TempFileGuard.h"
 #include <filesystem>
 #include <condition_variable>
 #include <iomanip>
@@ -75,6 +76,11 @@ static void CleanupTempFiles(const std::wstring& dir,
     if (!dir.empty()) std::filesystem::remove(dir, ec);
 }
 
+// RAII wrapper for temp file cleanup (replaces manual CleanupTempFiles in most cases)
+static void ReleaseTempGuard(TempFileGuard& guard) {
+    guard.Release();
+}
+
 // Capture frames to disk and return list of BMP paths.
 // Throws Cancelled or std::runtime_error on failure.
 static std::vector<std::wstring> CaptureFramesToDisk(
@@ -134,31 +140,37 @@ static std::vector<std::wstring> CaptureFramesToDisk(
 static std::string RunAnimated(const CaptureRequest& req, CancellationToken::Ptr token,
                                 const CaptureSession::AcquisitionCallback& onAcquired) {
     const wchar_t* prefix = (req.format == ImageFormat::AGIF) ? L"gif_temp" : L"apng_temp";
+    
+    // Clean up any stale temp directories from previous crashed sessions
+    // in the same output directory
+    StaleTempCleanup::ScanAndRemove(req.outputDir);
+    
     std::wstring tempDir  = MakeTempDir(req.outputDir, prefix);
     if (tempDir.empty()) return "CALLBACK_ERROR: Failed to create temp directory";
 
+    // RAII guard ensures cleanup even if we crash during encoding
+    TempFileGuard tempGuard(tempDir);
     std::vector<std::wstring> tempFiles;
+    
     try {
         FrameAcquirer acquirer(token);
         HRESULT hr = acquirer.Initialize();
-        if (hr == E_ABORT) { CleanupTempFiles(tempDir, tempFiles); return "CALLBACK_CANCELLED"; }
-        if (FAILED(hr))    { CleanupTempFiles(tempDir, tempFiles);
-                             return "CALLBACK_ERROR: Desktop duplication init failed"; }
+        if (hr == E_ABORT) return "CALLBACK_CANCELLED";
+        if (FAILED(hr))    return "CALLBACK_ERROR: Desktop duplication init failed";
 
         tempFiles = CaptureFramesToDisk(req, tempDir, acquirer, token);
     } catch (const Cancelled&) {
-        CleanupTempFiles(tempDir, tempFiles); return "CALLBACK_CANCELLED";
+        return "CALLBACK_CANCELLED";
     } catch (const std::exception& e) {
-        CleanupTempFiles(tempDir, tempFiles); return std::string("CALLBACK_ERROR: ") + e.what();
+        return std::string("CALLBACK_ERROR: ") + e.what();
     }
 
     if (tempFiles.empty()) {
-        CleanupTempFiles(tempDir, tempFiles);
         return "CALLBACK_ERROR: No frames captured";
     }
 
     if (token && token->IsCancelled()) {
-        CleanupTempFiles(tempDir, tempFiles); return "CALLBACK_CANCELLED";
+        return "CALLBACK_CANCELLED";
     }
 
     // All frames acquired — restore UI now so encoding (which can be slow for
@@ -178,6 +190,9 @@ static std::string RunAnimated(const CaptureRequest& req, CancellationToken::Ptr
                                   req.deltaMode, req.optimize, token);
     }
 
+    // Encoding complete — release guard so it won't clean up on return
+    // (temp files are deleted below, output file is kept)
+    tempGuard.Release();
     CleanupTempFiles(tempDir, tempFiles);
 
     if (!er.success) {

@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "logger.h"
 #include "papyrus/Bindings.h"
+#include "capture/TempFileGuard.h"
 
 namespace {
     constexpr std::string_view kPluginName    = "Printscreen"sv;

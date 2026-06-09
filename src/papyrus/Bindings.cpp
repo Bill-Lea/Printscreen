@@ -2,6 +2,7 @@
 #include "Bindings.h"
 #include "capture/CaptureSession.h"
 #include "capture/CaptureRequest.h"
+#include "capture/TempFileGuard.h"
 #include "ui/MenuEventSink.h"
 #include "ui/UIController.h"
 #include "ConsoleCommandQueue.h"
@@ -435,6 +436,12 @@ void PapyrusBindings::OnDataLoaded() {
 void PapyrusBindings::OnPostLoadGame() {
     logger::info("PapyrusBindings::OnPostLoadGame — cleaning up stale state");
 
+    // Clean up any orphaned temp directories from interrupted captures.
+    // This handles the case where a player enters a load door or dies
+    // mid-capture, leaving temp frame files behind.
+    logger::info("  Cleaning up orphaned temp directories from interrupted captures");
+    TempFileGuard::CleanupAllRegistered();
+
     auto* sink = MenuEventSink::GetSingleton();
 
     // Only restore UI if it was left hidden by a prior capture session.
@@ -449,6 +456,14 @@ void PapyrusBindings::OnPostLoadGame() {
         sink->ClearCaptureToken();
     }
 
+    // Notify Papyrus that any in-flight capture was cancelled by the reload
+    auto& session = CaptureSession::GetSingleton();
+    if (!session.IsIdle()) {
+        logger::info("  Session was active — sending cancellation event to Papyrus");
+        QueueModEvent("PrintScreenComplete", "cancelled",
+                        "Capture cancelled by game reload");
+    }
+
     // Force-reset any stale session state
-    CaptureSession::GetSingleton().ForceReset();
+    session.ForceReset();
 }
