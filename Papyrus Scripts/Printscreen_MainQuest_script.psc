@@ -82,15 +82,39 @@ int Function CheckPapyrusUtil() global
 endFunction
 
 Function InitializePrintscreen()
-    UnregisterForAllKeys()
-    UnregisterForAllModEvents()
-    ; reload values from MCM/global variables here
-    ; register hotkey again
-        RegisterForKey(Key_TakePhoto)
-        ;Register for the completion event in case it was missed during capture
-        RegisterForModEvent("PrintScreenComplete", "OnPrintScreenComplete")
-    Debug.MessageBox("PrintscreenV4 reinitialized")
+    ; Reset stale capture state left over from the previous session.
+    IsLatentScreenshotActive = false
+    IsStartingCapture        = false
+    _CompletionHandled       = false
+    _CaptureStartRealTime    = 0.0
+    Result                   = "Ready"
+
+    ; NEW: clear a stuck MCM-open flag — if this was left true, OnKeyUp
+    ; silently early-returns on every press and the hotkey looks dead.
+    bConfigOpen              = false
+    ; NEW: reset debounce timer. GetCurrentRealTime() resets to ~0 on a full
+    ; game relaunch; a stale large value here makes (now - last) negative and
+    ; trips the 0.75s debounce, swallowing the first presses.
+    LastKeyPressTime         = 0.0
+
+    ; Make sure the persisted hotkey is sane before we bind it.
+    Validate_Key_TakePhoto()
+
+    RegisterForKey(Key_TakePhoto)
+    RegisterForModEvent("PrintScreenComplete", "OnPrintScreenComplete")
+
+    Debug.Trace("PrintScreen: reinitialized, hotkey DXSC=" + Key_TakePhoto)
 EndFunction
+
+; NOTE: OnPlayerLoadGame() does NOT exist on Quest scripts — it is only
+; delivered to ReferenceAlias / Actor / ActiveMagicEffect scripts. The reload
+; and death-respawn path is handled by Printscreen_PlayerRef_Script (the player
+; alias), which calls InitializePrintscreen() from its own OnPlayerLoadGame().
+; A Quest-side OnPlayerLoadGame() block here would be silently dead code, so it
+; has been removed. If reinit ever stops happening after a load, verify:
+;   1. The player ReferenceAlias has Printscreen_PlayerRef_Script attached.
+;   2. That alias's MainQuest property points to THIS quest.
+;   3. This quest is running (Start Game Enabled / started).
 
 bool Function CheckJson_Exists_VALID()
 
@@ -130,9 +154,9 @@ Event OnInit()
                 readjson()
                 validateAll()
             Endif
-        Endif                                                                          
-        RegisterForKey(Key_TakePhoto)
-        RegisterForModEvent("PrintScreenComplete", "OnPrintScreenComplete")
+        Endif
+        ; Single source of truth for hotkey + mod-event binding.
+        InitializePrintscreen()
         Debug.Notification("PrintScreen " + Version + " initialized (event-driven)")
     endif
 EndEvent
@@ -467,7 +491,7 @@ Endif
 EndFunction
 
 Function Validate_Key_TakePhoto()
-if(Key_TakePhoto < 0 || Key_TakePhoto >256)
+if(Key_TakePhoto <= 0 || Key_TakePhoto >256)
 Key_takePhoto = 14
 endif
 EndFunction
